@@ -1,0 +1,79 @@
+spring:
+  application:
+    name: neusoft-health
+  profiles:
+    active: dev
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://${MYSQL_HOST:localhost}:${MYSQL_PORT:3306}/${MYSQL_DATABASE:neusoft_health}?useUnicode=true&characterEncoding=UTF-8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true
+    username: ${MYSQL_USERNAME:root}
+    password: ${MYSQL_PASSWORD:sa123}
+    hikari:
+      minimum-idle: 5
+      maximum-pool-size: 20
+      idle-timeout: 300000
+      max-lifetime: 1200000
+      connection-timeout: 30000
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
+      database: ${REDIS_DATABASE:0}
+      lettuce:
+        pool:
+          max-active: 8
+          max-idle: 8
+          min-idle: 0
+      timeout: 5000ms
+
+server:
+  port: 8080
+
+mybatis-plus:
+  mapper-locations: classpath*:/mapper/**/*.xml
+  type-aliases-package: com.neusoft.health.modules.*.entity
+  global-config:
+    db-config:
+      logic-delete-field: isDeleted
+      logic-delete-value: 1
+      logic-not-delete-value: 0
+      id-type: auto
+  configuration:
+    map-underscore-to-camel-case: true
+    cache-enabled: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+
+jwt:
+  secret: ${JWT_SECRET:NEUSOFT_HEALTH_CONSULTING_JWT_SECRET_KEY_2026}
+  expiration: ${JWT_EXPIRATION:604800000}
+  refresh-expiration: 2592000000
+
+sms:
+  url: https://push.spug.cc/sms/4ggpmeq2TLOLJvaF4-t24A
+  time: 1
+  min-interval-seconds: 60
+  daily-max-count: 5
+  queryUrl: https://push.spug.cc/request/query
+  Token: dca9d3db892e4e7bab8ca264b117d812
+
+deepseek:
+  api-key: ${DEEPSEEK_API_KEY:sk-2075c09dfeb74e52804eb0b2c28befff}
+  api-url: ${DEEPSEEK_API_URL:https://api.deepseek.com}
+  model: ${DEEPSEEK_MODEL:deepseek-chat}
+  max-tokens: 2048
+  temperature: 0.7
+
+logging:
+  level:
+    com.neusoft.health: debug
+    org.springframework.security: warn
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+  api-docs:
+    path: /v3/api-docs
+  group-configs:
+    - group: default
+      paths-to-match: /api/**

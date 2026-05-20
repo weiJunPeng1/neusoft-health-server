@@ -1,0 +1,22 @@
+{
+    "java.configuration.updateBuildConfiguration": "automatic",
+    "java.import.maven.enabled": true,
+    "java.import.gradle.enabled": false,
+    "java.autobuild.enabled": true,
+    "java.compile.nullAnalysis.mode": "automatic",
+    "java.configuration.maven.userSettings": "",
+    "java.configuration.runtimes": [
+        {
+            "name": "JavaSE-17",
+            "path": "C:\\Program Files\\Java\\jdk-17"
+        }
+    ],
+    "maven.executable.path": "",
+    "maven.terminal.useJavaHome": true,
+    "files.exclude": {
+        "**/.idea": true
+    },
+    "files.watcherExclude": {
+        "**/target/**": true
+    }
+}

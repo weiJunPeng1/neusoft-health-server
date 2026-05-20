@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>com.neusoft</groupId>
+        <artifactId>neusoft-health</artifactId>
+        <version>1.0.0</version>
+    </parent>
+
+    <artifactId>neusoft-health-api</artifactId>
+    <name>neusoft-health-api</name>
+    <description>API入口模块 - 启动类、配置文件</description>
+
+    <dependencies>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-system</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-consultation</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-user</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-admin</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-security</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-member</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>com.github.xiaoymin</groupId>
+            <artifactId>knife4j-openapi3-jakarta-spring-boot-starter</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-actuator</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
