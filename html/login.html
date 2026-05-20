@@ -26,19 +26,19 @@
             <div class="card" style="padding: 24px;">
                 <div class="form-group">
                     <label class="form-label">手机号码</label>
-                    <input class="form-input" id="phone" type="tel" placeholder="请输入11位手机号" maxlength="11">
+                    <input class="form-input" id="phone" type="tel" placeholder="请输入11位手机号" maxlength="11" />
                 </div>
                 
                 <div class="form-group">
                     <label class="form-label">验证码</label>
                     <div class="input-group">
-                        <input class="form-input" id="code" type="tel" placeholder="请输入6位验证码" maxlength="6">
+                        <input class="form-input" id="code" type="tel" placeholder="请输入6位验证码" maxlength="6" />
                         <button class="btn btn-secondary" id="getCodeBtn" onclick="getCode()">获取验证码</button>
                     </div>
                 </div>
 
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
-                    <input type="checkbox" id="agree" checked style="width: 18px; height: 18px;">
+                    <input type="checkbox" id="agree" checked style="width: 18px; height: 18px;" />
                     <label for="agree" style="font-size: 13px; color: #8F959E;">
                         我已阅读并同意
                         <a href="#" style="color: #4A90D9;">《用户服务协议》</a>
@@ -173,6 +173,9 @@
             setTimeout(() => {
                 toast.classList.remove('active');
             }, 2000);
+        }
+            function goBack() {
+            window.location.href = 'index.html';
         }
     </script>
 </body>

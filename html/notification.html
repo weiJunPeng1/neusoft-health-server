@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -6,7 +6,7 @@
     <title>消息通知 - 东软智慧健康咨询</title>
     <link rel="stylesheet" href="styles.css">
     <style>
-        .notif-tabs { display: flex; border-bottom: 1px solid #E5E6EB; background: #FFF; position: sticky; top: 0; z-index: 10; }
+        .notif-tabs { display: flex; border-bottom: 1px solid #E5E6EB; background: #FFF; position: sticky; top: 56px; z-index: 10; }
         .notif-tab { flex: 1; padding: 14px; text-align: center; font-size: 14px; color: #8F959E; cursor: pointer; border-bottom: 2px solid transparent; transition: all 0.2s; font-weight: 500; }
         .notif-tab.active { color: #4A90D9; border-bottom-color: #4A90D9; }
         .notif-tab .badge { margin-left: 4px; }
@@ -42,7 +42,7 @@
             <div class="notif-tab" onclick="switchNotifTab('consult', this)">咨询</div>
         </div>
 
-        <div style="padding-top: 0;">
+        <div style="padding-top: 12px;">
             <!-- 系统通知 -->
             <div class="notif-item unread" data-category="system" onclick="openNotifDetail('system1')">
                 <div class="notif-icon" style="background:linear-gradient(135deg,#E8F0FE,#D0E3FC);">

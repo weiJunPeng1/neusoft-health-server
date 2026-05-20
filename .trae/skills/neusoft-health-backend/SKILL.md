@@ -389,11 +389,12 @@ CREATE TABLE role_permissions (
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
+| POST | /api/v1/auth/send-code | 发送短信验证码（别名 /sms-code/send） |
+| POST | /api/v1/auth/login | 短信验证码登录（别名 /sms-code/verify） |
 | POST | /api/v1/auth/login/password | 密码登录 |
-| POST | /api/v1/auth/login/sms-code | 短信验证码登录 |
-| POST | /api/v1/auth/sms-code/send | 发送验证码 |
-| POST | /api/v1/auth/sms-code/verify | 校验验证码 |
-| POST | /api/v1/auth/token/refresh | 刷新令牌 |
+| POST | /api/v1/auth/logout | 退出登录 |
+| POST | /api/v1/auth/password | 修改密码（需登录） |
+| POST | /api/v1/auth/refresh | 刷新令牌 |
 | GET | /api/v1/home | 首页数据 |
 | GET | /api/v1/disclaimer | 免责声明内容 |
 
@@ -401,9 +402,8 @@ CREATE TABLE role_permissions (
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/user/info | 获取个人信息 |
-| PUT | /api/v1/user/info | 更新个人信息 |
-| PUT | /api/v1/user/password | 修改密码 |
+| GET | /api/v1/user/profile | 获取个人信息 |
+| PUT | /api/v1/user/profile | 更新个人信息 |
 | GET | /api/v1/user/login-logs | 登录历史 |
 
 ### 6.3 健康档案/设置/收藏（需登录）
@@ -418,7 +418,28 @@ CREATE TABLE role_permissions (
 | GET | /api/v1/user/favorites | 收藏列表 |
 | GET | /api/v1/user/favorite/check | 检查是否收藏 |
 
-### 6.4 咨询（需登录）
+### 6.4 会员中心（需登录）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/member/status | 获取会员状态 |
+| GET | /api/v1/member/levels | 获取所有会员等级权益 |
+| GET | /api/v1/member/invite | 获取邀请信息 |
+| GET | /api/v1/member/history | 获取会员订阅历史 |
+
+### 6.5 支付中心（需登录）
+
+| 方法 | 路径 | 说明 |
+|------|------|------|
+| GET | /api/v1/payment/plans | 获取订阅方案列表 |
+| POST | /api/v1/payment/order | 创建支付订单 |
+| GET | /api/v1/payment/order/{orderNo} | 查询订单状态 |
+| POST | /api/v1/payment/order/{orderNo}/cancel | 取消订单 |
+| POST | /api/v1/payment/callback/alipay | 支付宝支付回调（无需登录） |
+| POST | /api/v1/payment/refund/apply | 申请退款 |
+| GET | /api/v1/payment/refund/my | 获取我的退款记录 |
+
+### 6.6 咨询（需登录）
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
@@ -433,49 +454,56 @@ CREATE TABLE role_permissions (
 | GET | /api/v1/faq/categories/tree | FAQ分类树 |
 | GET | /api/v1/faq/category/{id} | 分类下FAQ列表 |
 
-### 6.5 管理后台（需 R002/R003/R004 角色）
+### 6.7 管理后台（需 R002/R003/R004 角色）
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/admin/users | 用户列表 |
+| GET | /api/v1/admin/users/list | 用户列表 |
 | GET | /api/v1/admin/users/{id} | 用户详情 |
 | PUT | /api/v1/admin/users/{id}/status | 禁用/启用用户 |
 | DELETE | /api/v1/admin/users/{id} | 删除用户（R002） |
 | GET | /api/v1/admin/review/pending | 待审核列表 |
 | POST | /api/v1/admin/review/message | 审核消息（通过/违规） |
-| GET | /api/v1/admin/faqs | FAQ管理列表 |
-| POST | /api/v1/admin/faqs | 新增FAQ |
-| PUT | /api/v1/admin/faqs/{id} | 编辑FAQ |
-| DELETE | /api/v1/admin/faqs/{id} | 删除FAQ |
-| GET | /api/v1/admin/faq-categories | FAQ分类管理 |
-| POST | /api/v1/admin/faq-categories | 新增分类 |
-| PUT | /api/v1/admin/faq-categories/{id} | 编辑分类 |
-| DELETE | /api/v1/admin/faq-categories/{id} | 删除分类 |
-| GET | /api/v1/admin/configs | 系统配置列表 |
-| GET | /api/v1/admin/configs/{key} | 配置详情 |
-| PUT | /api/v1/admin/configs | 更新配置 |
+| GET | /api/v1/admin/faq/list | FAQ管理列表 |
+| POST | /api/v1/admin/faq/create | 新增FAQ |
+| PUT | /api/v1/admin/faq/{id} | 编辑FAQ |
+| DELETE | /api/v1/admin/faq/{id} | 删除FAQ |
+| GET | /api/v1/admin/faq/categories | FAQ分类管理 |
+| POST | /api/v1/admin/faq/category | 新增分类 |
+| PUT | /api/v1/admin/faq/category/{id} | 编辑分类 |
+| DELETE | /api/v1/admin/faq/category/{id} | 删除分类 |
+| GET | /api/v1/admin/config/{configKey} | 获取配置 |
+| PUT | /api/v1/admin/config | 更新配置 |
 | GET | /api/v1/admin/stats/dashboard | 数据统计看板 |
-| GET | /api/v1/admin/sensitive-words | 敏感词列表 |
-| POST | /api/v1/admin/sensitive-words | 新增敏感词 |
-| PUT | /api/v1/admin/sensitive-words/{id} | 编辑敏感词 |
-| DELETE | /api/v1/admin/sensitive-words/{id} | 删除敏感词 |
-| GET | /api/v1/admin/operation-logs | 操作日志列表 |
+| GET | /api/v1/admin/sensitive-word/list | 敏感词列表 |
+| POST | /api/v1/admin/sensitive-word/create | 新增敏感词 |
+| PUT | /api/v1/admin/sensitive-word/{id} | 编辑敏感词 |
+| DELETE | /api/v1/admin/sensitive-word/{id} | 删除敏感词 |
+| GET | /api/v1/admin/logs/list | 操作日志列表 |
+| POST | /api/v1/admin/member/grant | 授予会员 |
+| POST | /api/v1/admin/member/revoke | 撤销会员 |
+| GET | /api/v1/admin/member/users | 会员用户列表 |
+| GET | /api/v1/admin/member/stats | 会员统计 |
+| GET | /api/v1/admin/payment/orders | 支付订单列表 |
+| GET | /api/v1/admin/payment/refunds | 退款申请列表 |
+| POST | /api/v1/admin/payment/refund/{id}/approve | 批准退款 |
+| POST | /api/v1/admin/payment/refund/{id}/reject | 拒绝退款 |
 
-### 6.6 权限管理（需 R002/R003 角色）
+### 6.8 权限管理（需 R002/R003 角色）
 
 | 方法 | 路径 | 说明 |
 |------|------|------|
-| GET | /api/v1/admin/roles | 角色列表 |
+| GET | /api/v1/admin/roles/list | 角色列表 |
 | GET | /api/v1/admin/roles/{id} | 角色详情（含权限） |
 | GET | /api/v1/admin/roles/user/{userId} | 用户角色 |
-| POST | /api/v1/admin/roles | 新增角色（R002） |
+| POST | /api/v1/admin/roles/create | 新增角色（R002） |
 | PUT | /api/v1/admin/roles/{id} | 编辑角色（R002） |
 | DELETE | /api/v1/admin/roles/{id} | 删除角色（R002） |
 | PUT | /api/v1/admin/roles/{id}/permissions | 分配权限 |
-| GET | /api/v1/admin/permissions | 权限列表 |
+| GET | /api/v1/admin/permissions/list | 权限列表 |
 | GET | /api/v1/admin/permissions/tree | 权限树 |
 | GET | /api/v1/admin/permissions/{id} | 权限详情 |
-| POST | /api/v1/admin/permissions | 新增权限 |
+| POST | /api/v1/admin/permissions/create | 新增权限 |
 | PUT | /api/v1/admin/permissions/{id} | 编辑权限 |
 | DELETE | /api/v1/admin/permissions/{id} | 删除权限 |
 | PUT | /api/v1/admin/user-roles/assign | 分配用户角色 |

@@ -87,7 +87,7 @@
         <!-- 输入区域 -->
         <div style="padding: 12px 16px; background: var(--bg-primary); border-top: 1px solid var(--border-light); padding-bottom: calc(12px + env(safe-area-inset-bottom));">
             <div style="display: flex; gap: 12px;">
-                <input type="text" id="inputMessage" placeholder="向AI健康助手提问..." style="flex: 1; height: 44px; padding: 0 16px; border: 1px solid var(--border-color); border-radius: 22px; font-size: 14px; outline: none; transition: all 0.2s;" onkeyup="handleKeyUp(event)">
+                <input type="text" id="inputMessage" placeholder="向AI健康助手提问..." style="flex: 1; height: 44px; padding: 0 16px; border: 1px solid var(--border-color); border-radius: 22px; font-size: 14px; outline: none; transition: all 0.2s;" onkeyup="handleKeyUp(event)" />
                 <button class="btn btn-primary" style="width: 44px; height: 44px; padding: 0; border-radius: 50%;" onclick="sendMessage()">
                     <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: white;">
                         <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/>
@@ -238,6 +238,9 @@
             toast.textContent = message;
             toast.classList.add('active');
             setTimeout(() => toast.classList.remove('active'), 2000);
+        }
+            function goBack() {
+            window.location.href = 'services.html';
         }
     </script>
 </body>

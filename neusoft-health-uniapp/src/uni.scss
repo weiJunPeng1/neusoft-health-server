@@ -1,0 +1,59 @@
+
+/* 颜色变量 */
+$primary-color: #4A90D9;
+$primary-dark: #357ABD;
+$bg-color: #F5F7FA;
+$card-bg: #FFFFFF;
+$text-primary: #1F2329;
+$text-secondary: #646A73;
+$text-tertiary: #8F959E;
+$text-placeholder: #BBBFC4;
+$border-color: #E5E6EB;
+$border-light: #F0F1F5;
+$success-color: #52C41A;
+$warning-color: #FAAD14;
+$danger-color: #FF4757;
+
+/* 间距 */
+$spacing-xs: 8rpx;
+$spacing-sm: 12rpx;
+$spacing-md: 16rpx;
+$spacing-lg: 20rpx;
+$spacing-xl: 24rpx;
+
+/* 圆角 */
+$radius-sm: 8rpx;
+$radius-md: 12rpx;
+$radius-lg: 16rpx;
+$radius-xl: 20rpx;
+$radius-round: 50%;
+
+/* 字体 */
+$font-xs: 22rpx;
+$font-sm: 24rpx;
+$font-base: 28rpx;
+$font-lg: 32rpx;
+$font-xl: 36rpx;
+$font-xxl: 40rpx;
+
+/* 阴影 */
+$shadow-sm: 0 2rpx 8rpx rgba(0,0,0,0.04);
+$shadow-md: 0 4rpx 16rpx rgba(0,0,0,0.06);
+$shadow-lg: 0 8rpx 32rpx rgba(0,0,0,0.1);
+
+/* 导航栏高度 */
+$nav-height: 88rpx;
+$tab-height: 100rpx;
+$safe-bottom: env(safe-area-inset-bottom);
+
+/* 会员等级色 */
+$member-silver: #BBBFC4;
+$member-gold: #FAAD14;
+$member-platinum: #4A90D9;
+
+/* uView 主题配置 */
+$u-primary: #4A90D9;
+$u-success: #52C41A;
+$u-warning: #FAAD14;
+$u-error: #FF4757;
+$u-info: #8F959E;

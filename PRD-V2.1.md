@@ -235,3 +235,52 @@ V2.1 在 V2.0 会员支付体系的基础上，完成以下工作：
 ---
 
 **文档结束**
+
+
+---
+
+## 十二、HTML预览与UniApp同步策略（V2.1新增）
+
+### 12.1 设计原则
+
+- **HTML预览 ≡ UniApp页面**：所有HTML预览文件与UniApp的`.vue`页面保持完全一致
+- **HTML驱动开发**：先完成HTML预览验证交互，再迁移到UniApp
+- **全局CSS共享**：`styles.css`嵌入`App.vue`作为全局样式
+- **统一导航结构**：4个一级Tab + 16个子页面，所有子页面有返回按钮
+
+### 12.2 页面清单（20页）
+
+| # | HTML文件 | UniApp页面 | 类型 | 导航 |
+|---|---------|-----------|------|------|
+| 1 | index.html | pages/index/index.vue | Tab | 首页 |
+| 2 | services.html | pages/services/index.vue | Tab | 服务 |
+| 3 | member.html | pages/member/index.vue | Tab | 会员 |
+| 4 | profile.html | pages/profile/index.vue | Tab | 我的 |
+| 5 | consult.html | pages/consult/index.vue | 子页 | ←返回 |
+| 6 | health-assistant.html | pages/health-assistant/index.vue | 子页 | ←返回 |
+| 7 | health-report.html | pages/health-report/index.vue | 子页 | ←返回 |
+| 8 | health-record.html | pages/health-record/index.vue | 子页 | ←返回 |
+| 9 | medicine-search.html | pages/medicine-search/index.vue | 子页 | ←返回 |
+| 10 | faq.html | pages/faq/index.vue | 子页 | ←返回 |
+| 11 | notification.html | pages/notification/index.vue | 子页 | ←返回 |
+| 12 | order.html | pages/order/index.vue | 子页 | ←返回 |
+| 13 | payment.html | pages/payment/index.vue | 子页 | ←返回 |
+| 14 | search.html | pages/search/index.vue | 子页 | ←返回 |
+| 15 | login.html | pages/login/index.vue | 子页 | ←返回 |
+| 16 | settings.html | pages/settings/index.vue | 子页 | ←返回 |
+| 17 | consult-history.html | pages/consult-history/index.vue | 子页 | ←返回 |
+| 18 | collections.html | pages/collections/index.vue | 子页 | ←返回 |
+| 19 | messages.html | pages/messages/index.vue | 子页 | ←返回 |
+| 20 | news.html | pages/news/index.vue | 子页 | ←返回 |
+
+### 12.3 页面关联链路
+
+- member.html → payment.html → order.html（会员→支付→订单）
+- services.html → consult.html / health-report.html / faq.html / ...（服务→各子服务）
+- index.html → 所有子页面（首页为调度中心）
+- profile.html → settings / health-record / order / collections / ...（我的→个人相关）
+
+### 12.4 接口对齐
+
+前后端接口路径已完全对齐，详见 SKILL.md 第六章节。
+前端API层文件：`api/auth.ts`、`api/user.ts`、`api/member.ts`、`api/payment.ts`、`api/consult.ts`

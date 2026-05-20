@@ -46,7 +46,7 @@
                     <div style="font-size:15px;font-weight:500;color:#1F2329;margin-bottom:6px;">上传体检报告或化验单</div>
                     <div style="font-size:13px;color:#8F959E;">支持 PDF、图片格式（JPG/PNG），最大20MB</div>
                 </div>
-                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleFileSelect(event)">
+                <input type="file" id="fileInput" accept=".pdf,.jpg,.jpeg,.png" style="display:none;" onchange="handleFileSelect(event)" />
                 <button class="btn btn-primary btn-block" style="margin-top:12px;" onclick="simulateUpload()">上传示例报告（演示）</button>
             </div>
 
@@ -246,6 +246,9 @@
         zone.addEventListener('dragover', function(e) { e.preventDefault(); zone.classList.add('drag-over'); });
         zone.addEventListener('dragleave', function() { zone.classList.remove('drag-over'); });
         zone.addEventListener('drop', function(e) { e.preventDefault(); zone.classList.remove('drag-over'); startAnalysis(); });
+            function goBack() {
+            window.location.href = 'services.html';
+        }
     </script>
 </body>
 </html>

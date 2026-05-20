@@ -1,9 +1,13 @@
 package com.neusoft.health.modules.system.controller;
 
 import com.neusoft.health.common.result.R;
+import java.util.List;
 import com.neusoft.health.framework.util.SecurityUtil;
 import com.neusoft.health.modules.system.dto.UserUpdateDTO;
+import com.neusoft.health.modules.system.service.UserLoginLogService;
 import com.neusoft.health.modules.system.service.UserService;
+import com.neusoft.health.modules.system.dto.UserLoginLogQueryDTO;
+import com.neusoft.health.modules.system.vo.UserLoginLogVO;
 import com.neusoft.health.modules.system.vo.UserVO;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,6 +31,7 @@ import org.springframework.web.bind.annotation.*;
 public class UserController {
 
     private final UserService userService;
+    private final UserLoginLogService loginLogService;
 
     /**
      * 获取个人信息
@@ -50,5 +55,17 @@ public class UserController {
     public R<Void> updateProfile(@Valid @RequestBody UserUpdateDTO dto) {
         userService.updateProfile(SecurityUtil.requireCurrentUserId(), dto);
         return R.ok();
+    }
+
+    /**
+     * 获取登录历史
+     *
+     * @param dto 查询条件
+     * @return 登录日志列表
+     */
+    @Operation(summary = "获取登录历史", description = "获取当前用户的登录历史记录，按时间倒序排列")
+    @GetMapping("/login-logs")
+    public R<List<UserLoginLogVO>> getLoginLogs(@Valid UserLoginLogQueryDTO dto) {
+        return R.ok(loginLogService.getUserLoginLogs(SecurityUtil.requireCurrentUserId(), dto));
     }
 }

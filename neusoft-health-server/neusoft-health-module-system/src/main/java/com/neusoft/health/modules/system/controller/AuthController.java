@@ -41,7 +41,7 @@ public class AuthController {
      * @return 操作结果
      */
     @Operation(summary = "发送短信验证码", description = "向指定手机号发送登录或重置密码的短信验证码，60秒内不可重复发送")
-    @PostMapping("/send-code")
+    @PostMapping({"/send-code", "/sms-code/send"})
     public R<Void> sendCode(@Valid @RequestBody SmsCodeSendDTO dto, HttpServletRequest request) {
         smsService.sendVerificationCode(dto, request.getRemoteAddr());
         return R.ok();
@@ -55,7 +55,7 @@ public class AuthController {
      * @return 登录结果
      */
     @Operation(summary = "短信验证码登录", description = "使用手机号和短信验证码进行登录，登录成功返回JWT令牌")
-    @PostMapping("/login")
+    @PostMapping({"/login", "/sms-code/verify"})
     public R<LoginVO> smsLogin(@Valid @RequestBody SmsCodeLoginDTO dto, HttpServletRequest request) {
         LoginVO vo = authService.login(dto, request.getRemoteAddr(), request.getHeader("User-Agent"));
         return R.ok(vo);
