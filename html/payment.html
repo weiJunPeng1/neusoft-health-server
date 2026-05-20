@@ -1,0 +1,274 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>支付结算 - 东软智慧健康咨询</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .payment-qr { width: 210px; height: 210px; margin: 0 auto; background: #fff; border-radius: 16px; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 12px rgba(0,0,0,0.08); }
+        .payment-qr canvas { width: 190px; height: 190px; }
+        .countdown-ring { position: relative; width: 72px; height: 72px; flex-shrink: 0; }
+        .countdown-ring svg { transform: rotate(-90deg); }
+        .countdown-ring .time-text { position: absolute; top: 50%; left: 50%; transform: translate(-50%,-50%); font-size: 20px; font-weight: 700; color: #E65100; }
+        .pay-method-tab { flex: 1; padding: 14px 10px; text-align: center; border-radius: 12px; cursor: pointer; transition: all 0.3s ease; border: 2px solid #E5E6EB; background: #FAFBFC; }
+        .pay-method-tab.active { border-color: #4A90D9; background: rgba(74,144,217,0.06); box-shadow: 0 0 0 4px rgba(74,144,217,0.08); }
+        .pay-method-tab .pay-icon { width: 44px; height: 44px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; }
+        .anim-bounce { animation: bounceIn 0.6s ease; }
+        @keyframes bounceIn { 0% { transform: scale(0.3); opacity: 0; } 50% { transform: scale(1.05); } 70% { transform: scale(0.9); } 100% { transform: scale(1); opacity: 1; } }
+        .security-badges { display: flex; justify-content: center; gap: 24px; padding: 12px 0; }
+        .security-badges .badge-item { display: flex; align-items: center; gap: 6px; font-size: 11px; color: #8F959E; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <div class="nav-back" onclick="goBack()">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </div>
+            <div class="nav-center"><div class="nav-title">支付结算</div></div>
+            <div class="nav-right"></div>
+        </div>
+
+        <div class="page-container" style="padding-top: 72px;">
+            <!-- 支付倒计时 -->
+            <div style="background: linear-gradient(135deg, #FFF3E0 0%, #FFE0B2 100%); border-radius: 12px; padding: 14px 16px; margin-bottom: 16px; display: flex; align-items: center; gap: 14px;">
+                <div class="countdown-ring">
+                    <svg width="72" height="72" viewBox="0 0 72 72">
+                        <circle cx="36" cy="36" r="32" fill="none" stroke="#FFE0B2" stroke-width="5"/>
+                        <circle cx="36" cy="36" r="32" fill="none" stroke="#FF9800" stroke-width="5" stroke-dasharray="201" id="countdownCircle" stroke-linecap="round"/>
+                    </svg>
+                    <div class="time-text" id="countdownText">15:00</div>
+                </div>
+                <div style="flex:1;">
+                    <div style="font-size:14px;font-weight:600;color:#E65100;">请在15分钟内完成支付</div>
+                    <div style="font-size:12px;color:#FF8F00;margin-top:4px;">超时后订单将自动取消，请尽快支付</div>
+                </div>
+            </div>
+
+            <!-- 订单信息 -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div class="card-header"><span class="card-title">订单详情</span></div>
+                <div style="padding: 4px 0;">
+                    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;align-items:center;">
+                        <span style="color:#8F959E;">商品名称</span>
+                        <span style="color:#1F2329;font-weight:500;" id="orderProduct">铂金会员月卡</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;">
+                        <span style="color:#8F959E;">订单编号</span>
+                        <span style="color:#1F2329;" id="orderNo">20260520210001</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;">
+                        <span style="color:#8F959E;">创建时间</span>
+                        <span style="color:#1F2329;" id="orderTime">2026-05-20 21:30:00</span>
+                    </div>
+                    <div style="display:flex;justify-content:space-between;padding:10px 0;font-size:14px;">
+                        <span style="color:#8F959E;">有效期限</span>
+                        <span style="color:#1F2329;">1个月</span>
+                    </div>
+                    <div style="border-top:1px dashed #E5E6EB;padding-top:14px;margin-top:6px;display:flex;justify-content:space-between;align-items:center;">
+                        <span style="font-size:16px;font-weight:600;color:#1F2329;">应付金额</span>
+                        <div style="text-align:right;">
+                            <span style="font-size:28px;font-weight:700;color:#FF4757;" id="orderAmount">¥19.90</span>
+                            <div style="font-size:11px;color:#8F959E;">首月体验价</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支付方式选择 -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div class="card-header"><span class="card-title">支付方式</span></div>
+                <div style="display:flex; gap:12px; padding-bottom: 4px;">
+                    <div class="pay-method-tab active" id="payAlipay" onclick="switchPayMethod('alipay')">
+                        <div class="pay-icon" style="background:linear-gradient(135deg,#1677FF,#0958D9);">
+                            <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:white;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                        </div>
+                        <div style="font-size:13px;font-weight:500;color:#1F2329;">支付宝</div>
+                    </div>
+                    <div class="pay-method-tab" id="payWechat" onclick="switchPayMethod('wechat')">
+                        <div class="pay-icon" style="background:linear-gradient(135deg,#07C160,#06AD56);">
+                            <svg viewBox="0 0 24 24" style="width:24px;height:24px;fill:white;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2z"/></svg>
+                        </div>
+                        <div style="font-size:13px;font-weight:500;color:#1F2329;">微信支付</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 支付宝扫码区域 -->
+            <div class="card" style="margin-bottom: 16px; text-align: center;" id="qrSection">
+                <div style="font-size:14px;font-weight:500;color:#1F2329;margin-bottom:16px;">支付宝扫码支付</div>
+                <div class="payment-qr anim-bounce">
+                    <canvas id="qrCanvas"></canvas>
+                </div>
+                <div style="font-size:12px;color:#8F959E;margin-top:14px;">打开支付宝扫一扫，扫描二维码完成支付</div>
+            </div>
+
+            <!-- 微信支付（默认隐藏） -->
+            <div class="card" style="margin-bottom: 16px; text-align: center; display: none;" id="wechatSection">
+                <div style="padding:40px 0;">
+                    <div style="width:60px;height:60px;background:#F5F7FA;border-radius:50%;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
+                        <svg viewBox="0 0 24 24" style="width:28px;height:28px;fill:#BBBFC4;"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+                    </div>
+                    <div style="font-size:14px;color:#8F959E;">微信支付功能开发中</div>
+                    <div style="font-size:12px;color:#BBBFC4;margin-top:4px;">请使用支付宝支付</div>
+                </div>
+            </div>
+
+            <!-- 安全提示 -->
+            <div class="security-badges">
+                <span class="badge-item">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#52C41A;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    数据加密
+                </span>
+                <span class="badge-item">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#52C41A;"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    安全支付
+                </span>
+                <span class="badge-item">
+                    <svg viewBox="0 0 24 24" style="width:14px;height:14px;fill:#52C41A;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/></svg>
+                    资金保障
+                </span>
+            </div>
+
+            <!-- 相关服务 -->
+            <div style="padding: 16px 0; text-align: center;">
+                <div style="font-size: 13px; color: #8F959E; margin-bottom: 12px;">— 相关服务 —</div>
+                <div style="display: flex; gap: 10px; justify-content: center; flex-wrap: wrap;">
+                    <button class="btn btn-outline btn-sm" onclick="window.location.href='member.html'">会员中心</button>
+                    <button class="btn btn-outline btn-sm" onclick="window.location.href='order.html'">我的订单</button>
+                    <button class="btn btn-outline btn-sm" onclick="window.location.href='health-report.html'">AI报告解读</button>
+                </div>
+            </div>
+
+            <!-- 模拟支付按钮 -->
+            <button class="btn btn-primary btn-block" style="margin-top: 0;" onclick="simulatePaid()">模拟支付成功（演示用）</button>
+        </div>
+    </div>
+
+    <!-- 支付成功弹窗 -->
+    <div class="modal-mask modal-center" id="successModal">
+        <div class="modal-content" style="text-align:center;padding:36px 28px;">
+            <div style="width:80px;height:80px;background:linear-gradient(135deg,#52C41A,#3CB371);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 20px;" class="anim-bounce">
+                <svg viewBox="0 0 24 24" style="width:40px;height:40px;fill:white;"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41L9 16.17z"/></svg>
+            </div>
+            <div style="font-size:22px;font-weight:700;color:#1F2329;margin-bottom:8px;">支付成功！</div>
+            <div style="font-size:14px;color:#8F959E;margin-bottom:28px;">您已成为铂金会员，立即体验专属权益</div>
+            <div style="background:linear-gradient(135deg,#F5F7FA,#E8F0FE);border-radius:12px;padding:16px;margin-bottom:20px;text-align:left;">
+                <div style="font-size:13px;color:#4A90D9;font-weight:500;margin-bottom:8px;">专属权益</div>
+                <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;font-size:12px;color:#646A73;">
+                    <div>✓ 无限咨询次数</div>
+                    <div>✓ 50轮上下文</div>
+                    <div>✓ 深度分析报告</div>
+                    <div>✓ 无限家庭共享</div>
+                </div>
+            </div>
+            <button class="btn btn-primary btn-block" onclick="goToMember()">查看会员权益</button>
+            <button class="btn btn-outline btn-block" style="margin-top:10px;" onclick="closeSuccessModal()">返回首页</button>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        var countdownSeconds = 900;
+        var countdownTimer = null;
+
+        function goBack() { window.location.href = 'order.html'; }
+        function goToMember() { window.location.href = 'member.html'; }
+        function closeSuccessModal() { document.getElementById('successModal').classList.remove('active'); window.location.href = 'index.html'; }
+
+        function switchPayMethod(method) {
+            var tabs = document.querySelectorAll('.pay-method-tab');
+            for (var i = 0; i < tabs.length; i++) tabs[i].classList.remove('active');
+            document.getElementById('payAlipay').classList.toggle('active', method === 'alipay');
+            document.getElementById('payWechat').classList.toggle('active', method === 'wechat');
+            document.getElementById('qrSection').style.display = method === 'alipay' ? '' : 'none';
+            document.getElementById('wechatSection').style.display = method === 'wechat' ? '' : 'none';
+        }
+
+        function drawQRCode() {
+            var canvas = document.getElementById('qrCanvas');
+            if (!canvas) return;
+            canvas.width = 210;
+            canvas.height = 210;
+            var ctx = canvas.getContext('2d');
+            ctx.fillStyle = '#FFFFFF';
+            ctx.fillRect(0, 0, 210, 210);
+            var s = 10, o = 5;
+            for (var x = 0; x < 20; x++) {
+                for (var y = 0; y < 20; y++) {
+                    if (Math.random() > 0.48) {
+                        ctx.fillStyle = '#1F2329';
+                        ctx.fillRect(o + x * s, o + y * s, s - 1, s - 1);
+                    }
+                }
+            }
+            drawFinder(ctx, 1, 1);
+            drawFinder(ctx, 14, 1);
+            drawFinder(ctx, 1, 14);
+            ctx.fillStyle = '#1677FF';
+            ctx.fillRect(o + 7 * s, o + 7 * s, s * 6, s * 6);
+            ctx.fillStyle = '#FFF';
+            ctx.font = 'bold 24px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText('支', o + 10 * s, o + 10.2 * s);
+        }
+
+        function drawFinder(ctx, fx, fy) {
+            var s = 10, o = 5;
+            ctx.fillStyle = '#1F2329';
+            ctx.fillRect(o + fx * s, o + fy * s, s * 3, s * 3);
+            ctx.fillStyle = '#FFF';
+            ctx.fillRect(o + (fx + 1) * s, o + (fy + 1) * s, s, s);
+            ctx.fillStyle = '#1F2329';
+            ctx.fillRect(o + (fx + 2) * s + 2, o + (fy + 2) * s + 2, s * 0.6 - 2, s * 0.6 - 2);
+        }
+
+        function startCountdown() {
+            updateCountdown();
+            countdownTimer = setInterval(function() {
+                countdownSeconds--;
+                if (countdownSeconds <= 0) {
+                    clearInterval(countdownTimer);
+                    showToast('支付已超时，订单取消');
+                    setTimeout(function() { window.location.href = 'order.html'; }, 1500);
+                    return;
+                }
+                updateCountdown();
+            }, 1000);
+        }
+
+        function updateCountdown() {
+            var m = Math.floor(countdownSeconds / 60);
+            var s = countdownSeconds % 60;
+            document.getElementById('countdownText').textContent = String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+            var circle = document.getElementById('countdownCircle');
+            if (circle) {
+                circle.style.strokeDashoffset = 201 * (1 - countdownSeconds / 900);
+            }
+            if (countdownSeconds <= 180) {
+                document.getElementById('countdownText').style.color = '#FF4757';
+            }
+        }
+
+        function simulatePaid() {
+            clearInterval(countdownTimer);
+            document.getElementById('successModal').classList.add('active');
+        }
+
+        function showToast(msg) {
+            var t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('active');
+            setTimeout(function() { t.classList.remove('active'); }, 2000);
+        }
+
+        document.addEventListener('DOMContentLoaded', function() {
+            drawQRCode();
+            startCountdown();
+        });
+    </script>
+</body>
+</html>

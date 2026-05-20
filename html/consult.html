@@ -9,17 +9,14 @@
 <body>
     <div class="container" style="padding-bottom: 0; display: flex; flex-direction: column; height: 100vh;">
         <!-- 顶部导航 -->
-        <div class="nav-header nav-header-light">
+        <div class="nav-header">
+            <div class="nav-back" onclick="window.location.href='index.html'">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </div>
             <div class="nav-center">
                 <div class="nav-title">健康咨询</div>
             </div>
-            <div class="nav-right">
-                <div class="nav-action" onclick="showMoreMenu()">
-                    <svg viewBox="0 0 24 24">
-                        <path d="M12 8c-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4-1.79-4-4-4zm0 6c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2z"/>
-                    </svg>
-                </div>
-            </div>
+            <div class="nav-right"></div>
         </div>
 
         <!-- 紧急医疗横幅 -->
@@ -119,118 +116,7 @@
             </div>
         </div>
 
-        <!-- 底部导航 -->
-        <div class="tab-bar">
-            <div class="tab-item" onclick="goToPage('index.html')">
-                <svg viewBox="0 0 24 24">
-                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
-                </svg>
-                <span class="tab-item-text">首页</span>
-            </div>
-            <div class="tab-item active" onclick="goToPage('consult.html')">
-                <svg viewBox="0 0 24 24">
-                    <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 0 0-1.02.27l-2.2 2.2a15.045 15.045 0 0 1-6.16-6.16l2.2-2.21a.96.96 0 0 0 .27-1.02A11.36 11.36 0 0 1 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM12 14c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1z"/>
-                </svg>
-                <span class="tab-item-text">问诊</span>
-            </div>
-            <div class="tab-item" onclick="goToPage('member.html')">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-                </svg>
-                <span class="tab-item-text">会员</span>
-            </div>
-            <div class="tab-item" onclick="goToPage('profile.html')">
-                <svg viewBox="0 0 24 24">
-                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                </svg>
-                <span class="tab-item-text">我的</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- 更多菜单弹窗 -->
-    <div class="modal-mask" id="moreMenuModal">
-        <div class="modal-content">
-            <div class="modal-body" style="padding: 0;">
-                <div class="list-item" onclick="newConversation()">
-                    <div class="list-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 4v16m8-8H4"/>
-                        </svg>
-                    </div>
-                    <div class="list-content">
-                        <div class="list-title">新对话</div>
-                        <div class="list-desc">开始新的健康咨询</div>
-                    </div>
-                    <div class="list-arrow">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="list-item" onclick="clearHistory()">
-                    <div class="list-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-                        </svg>
-                    </div>
-                    <div class="list-content">
-                        <div class="list-title">清除历史</div>
-                        <div class="list-desc">清空当前对话记录</div>
-                    </div>
-                    <div class="list-arrow">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
-                        </svg>
-                    </div>
-                </div>
-                <div class="list-item" onclick="goToPage('member.html')">
-                    <div class="list-icon">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
-                        </svg>
-                    </div>
-                    <div class="list-content">
-                        <div class="list-title">会员中心</div>
-                        <div class="list-desc">查看会员权益</div>
-                    </div>
-                    <div class="list-arrow">
-                        <svg viewBox="0 0 24 24">
-                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
-                        </svg>
-                    </div>
-                </div>
-            </div>
-            <button class="btn btn-secondary btn-block" onclick="closeMoreMenu()" style="margin-top: 16px;">取消</button>
-        </div>
-    </div>
-
-    <!-- 紧急医疗弹窗 -->
-    <div class="modal-mask modal-center" id="emergencyModal">
-        <div class="modal-content" style="text-align: center;">
-            <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
-                <svg viewBox="0 0 24 24" style="width: 40px; height: 40px; fill: white;">
-                    <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l6.59-6.59L20 9l-8 8z"/>
-                </svg>
-            </div>
-            <div style="font-size: 20px; font-weight: 600; color: #1F2329; margin-bottom: 8px;">紧急医疗服务</div>
-            <div style="font-size: 14px; color: #8F959E; margin-bottom: 20px;">如果您正处于紧急医疗状况，请立即拨打急救电话</div>
-            <div class="modal-footer" style="display: flex; gap: 16px;">
-                <button class="btn btn-outline" style="flex: 1;" onclick="closeEmergencyModal()">取消</button>
-                <button class="btn btn-danger" style="flex: 1;" onclick="callEmergency()">
-                    <svg viewBox="0 0 24 24" style="width: 18px; height: 18px; fill: white;">
-                        <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
-                    </svg>
-                    拨打120
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast提示 -->
-    <div class="toast" id="toast"></div>
-
-    <script>
+        <script>
         const messageContainer = document.getElementById('messageContainer');
         const messageInput = document.getElementById('messageInput');
         const sendBtn = document.getElementById('sendBtn');

@@ -196,7 +196,81 @@
             </div>
 
             <!-- 常见问题 -->
-            <div class="card">
+            
+            <!-- 更多服务 -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div class="card-header">
+                    <span class="card-title">更多服务</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px;">
+                    <div class="service-item" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;" onclick="goToPage('medicine-search.html')">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #52C41A 0%, #3CB371 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: white;"><path d="M6 3h12l2 6H4l2-6zm-4 8h20v10H2V11zm14 3h-4v2h4v-2zm-6 0H6v2h4v-2z"/></svg>
+                        </div>
+                        <span style="font-size: 12px; color: #646A73;">药品查询</span>
+                    </div>
+                    <div class="service-item" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;" onclick="goToPage('health-report.html')">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #FAAD14 0%, #FFD700 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: white;"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                        </div>
+                        <span style="font-size: 12px; color: #646A73;">报告解读</span>
+                    </div>
+                    <div class="service-item" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;" onclick="goToPage('faq.html')">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #FF9800 0%, #F57C00 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: white;"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 17h-2v-2h2v2zm2.07-7.75l-.9.92C13.45 12.9 13 13.5 13 15h-2v-.5c0-1.1.45-2.1 1.17-2.83l1.24-1.26c.37-.36.59-.86.59-1.41 0-1.1-.9-2-2-2s-2 .9-2 2H8c0-2.21 1.79-4 4-4s4 1.79 4 4c0 .88-.36 1.68-.93 2.25z"/></svg>
+                        </div>
+                        <span style="font-size: 12px; color: #646A73;">常见问题</span>
+                    </div>
+                    <div class="service-item" style="display: flex; flex-direction: column; align-items: center; gap: 8px; cursor: pointer;" onclick="goToPage('notification.html')">
+                        <div style="width: 56px; height: 56px; background: linear-gradient(135deg, #FF6B6B 0%, #FF4757 100%); border-radius: 14px; display: flex; align-items: center; justify-content: center;">
+                            <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: white;"><path d="M12 22c1.1 0 2-.9 2-2h-4c0 1.1.89 2 2 2zm6-6v-5c0-3.07-1.64-5.64-4.5-6.32V4c0-.83-.67-1.5-1.5-1.5s-1.5.67-1.5 1.5v.68C7.63 5.36 6 7.92 6 11v5l-2 2v1h16v-1l-2-2z"/></svg>
+                        </div>
+                        <span style="font-size: 12px; color: #646A73;">消息通知</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 精选健康专题 -->
+            <div class="card" style="margin-bottom: 16px;">
+                <div class="card-header">
+                    <span class="card-title">精选专题</span>
+                    <span style="font-size: 13px; color: #4A90D9; cursor: pointer;" onclick="goToPage('news.html')">更多 &gt;</span>
+                </div>
+                <div style="display: flex; gap: 12px; overflow-x: auto; padding-bottom: 4px; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                    <div style="min-width: 180px; background: linear-gradient(135deg, #E8F5E9 0%, #C8E6C9 100%); border-radius: 14px; padding: 16px; cursor: pointer;" onclick="showToast('专题详情开发中')">
+                        <div style="font-size: 24px; margin-bottom: 8px;">健康饮食</div>
+                        <div style="font-size: 12px; color: #237837;">12篇内容</div>
+                    </div>
+                    <div style="min-width: 180px; background: linear-gradient(135deg, #E8F0FE 0%, #D0E3FC 100%); border-radius: 14px; padding: 16px; cursor: pointer;" onclick="showToast('专题详情开发中')">
+                        <div style="font-size: 24px; margin-bottom: 8px;">科学运动</div>
+                        <div style="font-size: 12px; color: #1A56DB;">8篇内容</div>
+                    </div>
+                    <div style="min-width: 180px; background: linear-gradient(135deg, #FFF7E6 0%, #FFE8B0 100%); border-radius: 14px; padding: 16px; cursor: pointer;" onclick="showToast('专题详情开发中')">
+                        <div style="font-size: 24px; margin-bottom: 8px;">改善睡眠</div>
+                        <div style="font-size: 12px; color: #D48806;">6篇内容</div>
+                    </div>
+                    <div style="min-width: 180px; background: linear-gradient(135deg, #FFF1F0 0%, #FFD8D2 100%); border-radius: 14px; padding: 16px; cursor: pointer;" onclick="showToast('专题详情开发中')">
+                        <div style="font-size: 24px; margin-bottom: 8px;">心理调适</div>
+                        <div style="font-size: 12px; color: #CF1322;">10篇内容</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 每日健康提醒 -->
+            <div class="card" style="margin-bottom: 16px; background: linear-gradient(135deg, #667EEA 0%, #764BA2 100%); color: white; border-radius: 16px; padding: 20px; position: relative; overflow: hidden;">
+                <div style="position: absolute; top: -30px; right: -30px; width: 100px; height: 100px; background: rgba(255,255,255,0.1); border-radius: 50%;"></div>
+                <div style="position: absolute; bottom: -20px; left: -20px; width: 80px; height: 80px; background: rgba(255,255,255,0.06); border-radius: 50%;"></div>
+                <div style="position: relative; z-index: 1;">
+                    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 12px;">
+                        <svg viewBox="0 0 24 24" style="width: 24px; height: 24px; fill: rgba(255,255,255,0.9);"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                        <span style="font-size: 15px; font-weight: 600;">每日健康提醒</span>
+                    </div>
+                    <div id="dailyTip" style="font-size: 13px; opacity: 0.9; line-height: 1.6; margin-bottom: 12px;">每天多喝水，保持充足睡眠，是维持健康最简单有效的方式。</div>
+                    <span style="font-size: 11px; opacity: 0.6;">—— 东软健康小贴士 · 2026年5月20日</span>
+                </div>
+            </div>
+
+<div class="card">
                 <div class="card-header">
                     <span class="card-title">常见问题</span>
                 </div>
@@ -235,11 +309,11 @@
                 </svg>
                 <span class="tab-item-text">首页</span>
             </div>
-            <div class="tab-item" onclick="goToPage('consult.html')">
+            <div class="tab-item" onclick="goToPage('services.html')">
                 <svg viewBox="0 0 24 24">
-                    <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 0 0-1.02.27l-2.2 2.2a15.045 15.045 0 0 1-6.16-6.16l2.2-2.21a.96.96 0 0 0 .27-1.02A11.36 11.36 0 0 1 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM12 14c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1z"/>
+                    <path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58a.49.49 0 00.12-.61l-1.92-3.32a.488.488 0 00-.59-.22l-2.39.96c-.5-.38-1.03-.66-1.6-.88l-.36-2.54a.484.484 0 00-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.57.22-1.1.5-1.6.88l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58a.49.49 0 00-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.66 1.6.88l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.57-.22 1.1-.5 1.6-.88l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/>
                 </svg>
-                <span class="tab-item-text">问诊</span>
+                <span class="tab-item-text">服务</span>
             </div>
             <div class="tab-item" onclick="goToPage('member.html')">
                 <svg viewBox="0 0 24 24">
@@ -338,16 +412,27 @@
             }, 2000);
         }
 
-        document.addEventListener('DOMContentLoaded', () => {
+        // Daily health tips
+        var dailyTips = [
+            '每天多喝水，保持充足睡眠，是维持健康最简单有效的方式。',
+            '定期体检是早期发现疾病的重要手段，建议每年进行一次全面体检。',
+            '饭后散步30分钟有助于消化和血糖控制，养成好习惯从现在开始。',
+            '控制盐分摄入（每日<5g），有助于预防高血压和心血管疾病。',
+            '屏幕使用时间过长？记得每45分钟远眺放松眼睛，保护视力。'
+        ];
+
+        document.addEventListener('DOMContentLoaded', function() {
             autoPlayNews();
-            
-            const carousel = document.getElementById('newsCarousel');
-            carousel.addEventListener('mouseenter', () => {
-                if (newsTimer) clearInterval(newsTimer);
-            });
-            carousel.addEventListener('mouseleave', () => {
-                autoPlayNews();
-            });
+            var carousel = document.getElementById('newsCarousel');
+            carousel.addEventListener('mouseenter', function() { if (newsTimer) clearInterval(newsTimer); });
+            carousel.addEventListener('mouseleave', function() { autoPlayNews(); });
+
+            // Rotate daily tip
+            var tipEl = document.getElementById('dailyTip');
+            if (tipEl) {
+                var tipIdx = new Date().getDate() % dailyTips.length;
+                tipEl.textContent = dailyTips[tipIdx];
+            }
         });
     </script>
 </body>

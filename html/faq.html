@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>常见问题 - 东软智慧健康咨询</title>
+    <link rel="stylesheet" href="styles.css">
+    <style>
+        .faq-category { display: flex; gap: 10px; overflow-x: auto; padding: 12px 0; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+        .faq-category::-webkit-scrollbar { display: none; }
+        .faq-cat-item { flex-shrink: 0; padding: 8px 18px; border-radius: 20px; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s; border: 1px solid #E5E6EB; color: #646A73; background: #FFF; white-space: nowrap; }
+        .faq-cat-item.active { background: #4A90D9; color: #FFF; border-color: #4A90D9; }
+        .faq-item { background: white; border-radius: 14px; margin-bottom: 10px; overflow: hidden; box-shadow: 0 1px 6px rgba(0,0,0,0.04); transition: all 0.3s; }
+        .faq-item .faq-question { padding: 16px; display: flex; align-items: center; gap: 12px; cursor: pointer; }
+        .faq-item .faq-arrow { transition: transform 0.3s ease; flex-shrink: 0; }
+        .faq-item.open .faq-arrow { transform: rotate(180deg); }
+        .faq-item .faq-answer { max-height: 0; overflow: hidden; transition: max-height 0.4s ease, padding 0.4s ease; background: #FAFBFC; }
+        .faq-item.open .faq-answer { max-height: 500px; padding: 0 16px 16px; }
+        .faq-item .faq-answer-inner { font-size: 14px; color: #646A73; line-height: 1.8; }
+        .hot-badge { background: linear-gradient(135deg,#FF6B6B,#FF4757); color: #FFF; font-size: 10px; padding: 2px 6px; border-radius: 8px; margin-left: 6px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="nav-header">
+            <div class="nav-back" onclick="window.location.href='index.html'">
+                <svg viewBox="0 0 24 24"><path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/></svg>
+            </div>
+            <div class="nav-center"><div class="nav-title">常见问题</div></div>
+            <div class="nav-right"><div class="nav-action" onclick="window.location.href='search.html'"><svg viewBox="0 0 24 24"><path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.77l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/></svg></div></div>
+        </div>
+
+        <div class="page-container" style="padding-top: 72px;">
+            <!-- 分类 -->
+            <div class="faq-category" id="faqCategory">
+                <span class="faq-cat-item active" onclick="switchFaqCat('all', this)">全部</span>
+                <span class="faq-cat-item" onclick="switchFaqCat('account', this)">账户相关</span>
+                <span class="faq-cat-item" onclick="switchFaqCat('member', this)">会员订阅</span>
+                <span class="faq-cat-item" onclick="switchFaqCat('consult', this)">咨询问诊</span>
+                <span class="faq-cat-item" onclick="switchFaqCat('ai', this)">AI服务</span>
+                <span class="faq-cat-item" onclick="switchFaqCat('payment', this)">支付退款</span>
+                <span class="faq-cat-item" onclick="switchFaqCat('privacy', this)">隐私安全</span>
+            </div>
+
+            <!-- FAQ列表 -->
+            <div id="faqList">
+                <div class="faq-item" data-category="account">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">如何注册成为东软健康用户？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">下载东软智慧健康App，打开后点击"登录/注册"，输入手机号码获取验证码，输入验证码后即可完成注册。首次注册默认为L0普通用户，可享受每日3次免费健康咨询服务。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="account">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">忘记密码怎么办？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">在登录页面点击"忘记密码"，输入注册手机号获取验证码，验证成功后即可设置新密码。如已设置密码，也可通过"我的-设置-修改密码"进行更改。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="account">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">可以更换绑定的手机号吗？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">可以。在"我的-设置-修改手机号"中，先验证原手机号，再输入新手机号并验证，即可完成换绑操作。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="member">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">会员有哪些等级？每个等级有什么权益？<span class="hot-badge">HOT</span></div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">系统提供四个等级：<br/><b>L0 普通用户</b>（免费）：每日3次咨询，5轮上下文。<br/><b>L1 白银会员</b>（¥19.9/月）：每日20次，15轮上下文，自动建档，1个共享位。<br/><b>L2 黄金会员</b>（¥39.9/月）：每日50次，30轮上下文，3个共享位。<br/><b>L3 铂金会员</b>（¥69.9/月）：无限次数，50轮上下文，深度分析，无限共享。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="member">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">首月体验价是什么规则？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">每个用户每个等级仅可享受一次首月体验价：白银月卡¥0.1、黄金月卡¥9.9、铂金月卡¥19.9。体验价仅适用于月卡方案，续费按正常价格执行。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="member">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">家庭共享功能怎么使用？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">家庭共享功能计划在V2.1版本上线。届时L1可共享给1人，L2共享给3人，L3无限共享。共享成员使用主账号的每日配额。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="consult">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">如何进行健康咨询？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">登录后进入"问诊"页面或首页"AI健康助手"入口，输入您的健康问题，AI将在数秒内给出专业回复。支持多轮对话，可以追问细化问题。您也可以使用快捷问题快速开始。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="consult">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">咨询记录可以保存多久？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">您的所有咨询记录将永久保存，除非您主动删除。您可以在"我的-咨询历史"中查看、搜索和管理您的历史咨询记录。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="ai">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">AI回复的准确性如何？可以替代医生吗？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">AI健康助手基于DeepSeek大模型，知识库覆盖广泛的医学文献和健康指南，但仍可能包含不准确之处。<b>AI回复不能替代专业医生的诊断和治疗建议</b>。如有身体不适，请及时就医。如遇紧急情况，请立即拨打120。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="ai">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">什么是健康报告AI解读？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">您可以上传体检报告或化验单（支持PDF和图片格式），AI会自动识别关键指标，逐项分析是否正常，并给出综合评估和健康改善建议。该功能需要会员订阅。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="payment">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">支持哪些支付方式？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">目前支持支付宝支付（包括AI支付和个人收款），微信支付暂不支持。后续将根据用户反馈增加更多支付方式。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="payment">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">如何申请退款？退款规则是什么？<span class="hot-badge">HOT</span></div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">用户可在"我的订单"中申请退款，需经管理员审核。退款金额 = 支付金额 x（剩余天数 / 总天数）。退款后立即降为L0普通用户，已使用天数不退还。首月体验价订单不支持退款。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="privacy">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">我的健康数据安全吗？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">我们高度重视您的隐私安全。所有数据传输均采用加密通道，个人敏感信息使用AES加密存储。系统严格遵循《个人信息保护法》《数据安全法》《互联网医疗健康信息服务管理办法》要求。您可以随时在设置中选择删除全部数据。</div></div>
+                </div>
+
+                <div class="faq-item" data-category="privacy">
+                    <div class="faq-question" onclick="toggleFaq(this)">
+                        <div style="flex:1;font-size:14px;font-weight:500;color:#1F2329;">咨询内容会被他人看到吗？</div>
+                        <svg class="faq-arrow" viewBox="0 0 24 24" style="width:18px;height:18px;fill:#BBBFC4;"><path d="M7.41 8.59L12 13.17l4.59-4.58L18 10l-6 6-6-6 1.41-1.41z"/></svg>
+                    </div>
+                    <div class="faq-answer"><div class="faq-answer-inner">您的咨询内容仅您本人可见。系统设有严格的内容审核机制，对违规内容进行自动过滤和人工复核，但审核过程仅关注内容合规性，不会泄露用户隐私。</div></div>
+                </div>
+            </div>
+
+            <!-- 相关服务 -->
+            <div style="padding: 20px 0; text-align: center;">
+                <div style="font-size: 13px; color: #8F959E; margin-bottom: 12px;">— 还没有找到答案？试试这些服务 —</div>
+                <div style="display: flex; gap: 10px; justify-content: center;">
+                    <button class="btn btn-outline btn-sm" onclick="window.location.href='consult.html'">AI健康咨询</button>
+                    <button class="btn btn-outline btn-sm" onclick="window.location.href='medicine-search.html'">药品查询</button>
+                    <button class="btn btn-outline btn-sm" onclick="window.location.href='notification.html'">消息通知</button>
+                </div>
+            </div>
+
+            <div style="text-align:center;padding:16px;color:#BBBFC4;font-size:13px;">
+                — 已加载全部常见问题 —
+            </div>
+        </div>
+    </div>
+
+    <div class="toast" id="toast"></div>
+
+    <script>
+        var currentFaqCat = 'all';
+
+        function switchFaqCat(cat, el) {
+            currentFaqCat = cat;
+            document.querySelectorAll('.faq-cat-item').forEach(function(p) { p.classList.remove('active'); });
+            el.classList.add('active');
+            var items = document.querySelectorAll('.faq-item');
+            items.forEach(function(item) {
+                item.style.display = (cat === 'all' || item.getAttribute('data-category') === cat) ? '' : 'none';
+            });
+        }
+
+        function toggleFaq(questionEl) {
+            var item = questionEl.parentElement;
+            item.classList.toggle('open');
+        }
+    </script>
+</body>
+</html>
