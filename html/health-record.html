@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>健康档案 - 东软智慧健康咨询</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="nav-header">
+            <div class="nav-back" onclick="goBack()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </div>
+            <div class="nav-center">
+                <div class="nav-title">健康档案</div>
+            </div>
+            <div class="nav-right"></div>
+        </div>
+
+        <!-- 健康指标概览 -->
+        <div class="page-container" style="padding-top: 72px;">
+            <div class="card" style="padding: 20px; background: linear-gradient(135deg, #4A90D9 0%, #357ABD 100%);">
+                <div style="display: flex; justify-content: space-around;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: white;">72</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px;">心率</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: white;">120/80</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px;">血压</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 28px; font-weight: 700; color: white;">36.5</div>
+                        <div style="font-size: 12px; color: rgba(255,255,255,0.85); margin-top: 4px;">体温</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 健康指标卡片 -->
+            <div class="health-indicator-card">
+                <div class="indicator-header">
+                    <div class="indicator-title">血压</div>
+                    <div class="indicator-date">2024-01-20</div>
+                </div>
+                <div>
+                    <span class="indicator-value">120</span>
+                    <span class="indicator-unit">/80 mmHg</span>
+                </div>
+                <div class="indicator-status">✓ 正常</div>
+                <div class="indicator-chart">
+                    <div class="chart-bar" style="height: 60%;"></div>
+                    <div class="chart-bar" style="height: 75%;"></div>
+                    <div class="chart-bar" style="height: 65%;"></div>
+                    <div class="chart-bar" style="height: 80%;"></div>
+                    <div class="chart-bar" style="height: 70%;"></div>
+                    <div class="chart-bar" style="height: 72%;"></div>
+                    <div class="chart-bar" style="height: 68%;"></div>
+                </div>
+            </div>
+
+            <div class="health-indicator-card">
+                <div class="indicator-header">
+                    <div class="indicator-title">心率</div>
+                    <div class="indicator-date">2024-01-20</div>
+                </div>
+                <div>
+                    <span class="indicator-value">72</span>
+                    <span class="indicator-unit">次/分钟</span>
+                </div>
+                <div class="indicator-status">✓ 正常</div>
+                <div class="indicator-chart">
+                    <div class="chart-bar" style="height: 70%;"></div>
+                    <div class="chart-bar" style="height: 75%;"></div>
+                    <div class="chart-bar" style="height: 68%;"></div>
+                    <div class="chart-bar" style="height: 72%;"></div>
+                    <div class="chart-bar" style="height: 70%;"></div>
+                    <div class="chart-bar" style="height: 73%;"></div>
+                    <div class="chart-bar" style="height: 72%;"></div>
+                </div>
+            </div>
+
+            <!-- 体检报告 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">体检报告</span>
+                    <span class="card-extra">查看全部</span>
+                </div>
+                <div class="list-item" onclick="viewReport('202401')">
+                    <div class="list-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-title">2024年度体检报告</div>
+                        <div class="list-desc">2024-01-15</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="list-item" onclick="viewReport('202306')">
+                    <div class="list-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/>
+                        </svg>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-title">2023年中期体检报告</div>
+                        <div class="list-desc">2023-06-20</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 病历记录 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">病历记录</span>
+                    <span class="card-extra">查看全部</span>
+                </div>
+                <div class="list-item" onclick="viewMedicalRecord()">
+                    <div class="list-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm-7 14l-5-5 1.41-1.41L12 14.17l6.59-6.59L20 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <div class="list-content">
+                        <div class="list-title">感冒治疗记录</div>
+                        <div class="list-desc">2024-01-10 · 内科 · 感冒</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 底部导航 -->
+        <div class="tab-bar">
+            <div class="tab-item" onclick="goToPage('index.html')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/>
+                </svg>
+                <span class="tab-item-text">首页</span>
+            </div>
+            <div class="tab-item" onclick="goToPage('consult.html')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 15.5c-1.25 0-2.45-.2-3.57-.57a1.02 1.02 0 0 0-1.02.27l-2.2 2.2a15.045 15.045 0 0 1-6.16-6.16l2.2-2.21a.96.96 0 0 0 .27-1.02A11.36 11.36 0 0 1 8.5 4c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1 0 9.39 7.61 17 17 17 .55 0 1-.45 1-1v-3.5c0-.55-.45-1-1-1zM12 14c-.55 0-1-.45-1-1V9c0-.55.45-1 1-1s1 .45 1 1v4c0 .55-.45 1-1 1z"/>
+                </svg>
+                <span class="tab-item-text">问诊</span>
+            </div>
+            <div class="tab-item" onclick="goToPage('member.html')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+                <span class="tab-item-text">会员</span>
+            </div>
+            <div class="tab-item active" onclick="goToPage('profile.html')">
+                <svg viewBox="0 0 24 24">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                </svg>
+                <span class="tab-item-text">我的</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'profile.html';
+        }
+
+        function goToPage(page) {
+            if (window.location.pathname.includes(page)) return;
+            window.location.href = page;
+        }
+
+        function viewReport(month) {
+            showToast('查看报告功能开发中');
+        }
+
+        function viewMedicalRecord() {
+            showToast('查看病历功能开发中');
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast active';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

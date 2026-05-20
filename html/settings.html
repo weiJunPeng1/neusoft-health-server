@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>设置 - 东软智慧健康咨询</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <!-- 顶部导航 -->
+        <div class="nav-header">
+            <div class="nav-back" onclick="goBack()">
+                <svg viewBox="0 0 24 24">
+                    <path d="M20 11H7.83l5.59-5.59L12 4l-8 8 8 8 1.41-1.41L7.83 13H20v-2z"/>
+                </svg>
+            </div>
+            <div class="nav-center">
+                <div class="nav-title">设置</div>
+            </div>
+            <div class="nav-right"></div>
+        </div>
+
+        <div class="page-container" style="padding-top: 72px;">
+            <!-- 账号安全 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">账号安全</span>
+                </div>
+                <div class="setting-item" onclick="goToPage('change-phone.html')">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6.62 10.79c1.44 2.83 3.76 5.14 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">修改手机号</div>
+                        <div class="setting-desc">当前手机号：138****8888</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="setting-item" onclick="goToPage('change-password.html')">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">修改密码</div>
+                        <div class="setting-desc">设置登录密码</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 通知设置 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">通知设置</span>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">消息通知</div>
+                        <div class="setting-desc">接收消息推送</div>
+                    </div>
+                    <div class="switch active" onclick="toggleNotification()"></div>
+                </div>
+                <div class="setting-item">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8zm3.5-9c.83 0 1.5-.67 1.5-1.5S16.33 8 15.5 8 14 8.67 14 9.5s.67 1.5 1.5 1.5zm-7 0c.83 0 1.5-.67 1.5-1.5S9.33 8 8.5 8 7 8.67 7 9.5 7.67 11 8.5 11zm3.5 6.5c2.33 0 4.31-1.46 5.11-3.5H6.89c.8 2.04 2.78 3.5 5.11 3.5z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">声音提醒</div>
+                        <div class="setting-desc">消息提示音</div>
+                    </div>
+                    <div class="switch active" onclick="toggleSound()"></div>
+                </div>
+            </div>
+
+            <!-- 隐私管理 -->
+            <div class="card">
+                <div class="card-header">
+                    <span class="card-title">隐私管理</span>
+                </div>
+                <div class="setting-item" onclick="goToPage('privacy.html')">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm-2 16l-4-4 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">隐私政策</div>
+                        <div class="setting-desc">查看隐私政策</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="setting-item" onclick="goToPage('clear-data.html')">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">清除缓存</div>
+                        <div class="setting-desc">清除本地缓存数据</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 关于 -->
+            <div class="card">
+                <div class="setting-item" onclick="goToPage('about.html')">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">关于我们</div>
+                        <div class="setting-desc">版本号 v1.0.0</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+                <div class="setting-item" onclick="goToPage('feedback.html')">
+                    <div class="setting-icon">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 12H6v-2h12v2zm0-3H6V9h12v2zm0-3H6V6h12v2z"/>
+                        </svg>
+                    </div>
+                    <div class="setting-content">
+                        <div class="setting-title">意见反馈</div>
+                        <div class="setting-desc">帮助我们改进产品</div>
+                    </div>
+                    <div class="list-arrow">
+                        <svg viewBox="0 0 24 24">
+                            <path d="M12 4l-1.41 1.41L16.17 11H4v2h12.17l-5.58 5.59L12 20l8-8-8-8z"/>
+                        </svg>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 退出登录 -->
+            <button class="btn btn-secondary btn-block" style="margin-top: 12px;" onclick="handleLogout()">退出登录</button>
+        </div>
+    </div>
+
+    <script>
+        function goBack() {
+            window.location.href = 'profile.html';
+        }
+
+        function goToPage(page) {
+            if (window.location.pathname.includes(page)) return;
+            window.location.href = page;
+        }
+
+        function toggleNotification() {
+            showToast('通知设置已更新');
+        }
+
+        function toggleSound() {
+            showToast('声音设置已更新');
+        }
+
+        function handleLogout() {
+            if (confirm('确定要退出登录吗？')) {
+                showToast('退出成功');
+                setTimeout(() => {
+                    window.location.href = 'login.html';
+                }, 1500);
+            }
+        }
+
+        function showToast(message) {
+            const toast = document.createElement('div');
+            toast.className = 'toast active';
+            toast.textContent = message;
+            document.body.appendChild(toast);
+            setTimeout(() => {
+                toast.remove();
+            }, 2000);
+        }
+    </script>
+</body>
+</html>

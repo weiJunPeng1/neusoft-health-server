@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>登录 - 东软智慧健康咨询</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container" style="padding-bottom: 0;">
+        <!-- 顶部背景 -->
+        <div style="background: linear-gradient(135deg, #4A90D9 0%, #357ABD 100%); padding: 80px 20px 60px; border-radius: 0 0 40px 40px;">
+            <div style="text-align: center;">
+                <div style="width: 80px; height: 80px; background: rgba(255,255,255,0.2); border-radius: 20px; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px;">
+                    <svg viewBox="0 0 24 24" style="width: 44px; height: 44px; fill: white;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/>
+                    </svg>
+                </div>
+                <div style="font-size: 24px; font-weight: 600; color: white; margin-bottom: 8px;">智慧健康</div>
+                <div style="font-size: 14px; color: rgba(255,255,255,0.85);">专业的健康咨询服务平台</div>
+            </div>
+        </div>
+
+        <!-- 登录表单 -->
+        <div class="page-container" style="padding-top: 12px;">
+            <div class="card" style="padding: 24px;">
+                <div class="form-group">
+                    <label class="form-label">手机号码</label>
+                    <input class="form-input" id="phone" type="tel" placeholder="请输入11位手机号" maxlength="11">
+                </div>
+                
+                <div class="form-group">
+                    <label class="form-label">验证码</label>
+                    <div class="input-group">
+                        <input class="form-input" id="code" type="tel" placeholder="请输入6位验证码" maxlength="6">
+                        <button class="btn btn-secondary" id="getCodeBtn" onclick="getCode()">获取验证码</button>
+                    </div>
+                </div>
+
+                <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 24px;">
+                    <input type="checkbox" id="agree" checked style="width: 18px; height: 18px;">
+                    <label for="agree" style="font-size: 13px; color: #8F959E;">
+                        我已阅读并同意
+                        <a href="#" style="color: #4A90D9;">《用户服务协议》</a>
+                        和
+                        <a href="#" style="color: #4A90D9;">《隐私政策》</a>
+                    </label>
+                </div>
+
+                <button class="btn btn-primary btn-block btn-lg" onclick="login()">登录</button>
+            </div>
+
+            <!-- 第三方登录 -->
+            <div class="divider-text"><span>其他登录方式</span></div>
+            
+            <div style="display: flex; justify-content: center; gap: 32px;">
+                <div class="third-party-btn" style="width: 56px; height: 56px; background: linear-gradient(135deg, #1677FF 0%, #096DD9 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(22, 119, 255, 0.3);" onclick="thirdPartyLogin('wechat')">
+                    <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: white;">
+                        <path d="M8.691 2.188C3.891 2.188 0 5.476 0 9.53c0 2.212 1.17 4.203 3.002 5.55a.59.59 0 0 1 .213.665l-.39 1.48c-.019.07-.048.141-.048.213 0 .163.13.295.29.295a.326.326 0 0 0 .167-.054l1.903-1.114a.864.864 0 0 1 .717-.098 10.16 10.16 0 0 0 2.837.403c.276 0 .543-.027.811-.05-.857-2.578.157-4.972 1.932-6.446 1.703-1.415 3.882-1.98 5.853-1.838-.576-3.583-4.196-6.348-8.596-6.348zM5.785 5.991c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178A1.17 1.17 0 0 1 4.623 7.17c0-.651.52-1.18 1.162-1.18zm5.813 0c.642 0 1.162.529 1.162 1.18a1.17 1.17 0 0 1-1.162 1.178 1.17 1.17 0 0 1-1.162-1.178c0-.651.52-1.18 1.162-1.18zm5.34 2.867c-1.797-.052-3.746.512-5.28 1.786-1.72 1.428-2.687 3.72-1.78 6.22.942 2.453 3.666 4.229 6.884 4.229.826 0 1.622-.12 2.361-.336a.722.722 0 0 1 .598.082l1.584.926a.272.272 0 0 0 .14.047c.134 0 .24-.111.24-.247 0-.06-.023-.12-.038-.177l-.327-1.233a.582.582 0 0 1-.023-.156.49.49 0 0 1 .201-.398C23.024 18.48 24 16.82 24 14.98c0-3.21-2.931-5.837-6.656-6.088V8.89c-.135-.01-.269-.03-.406-.03zm-2.53 3.274c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.97-.982zm4.844 0c.535 0 .969.44.969.982a.976.976 0 0 1-.969.983.976.976 0 0 1-.969-.983c0-.542.434-.982.969-.982z"/>
+                    </svg>
+                </div>
+                <div class="third-party-btn" style="width: 56px; height: 56px; background: linear-gradient(135deg, #18BC00 0%, #139A00 100%); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; box-shadow: 0 4px 12px rgba(24, 188, 0, 0.3);" onclick="thirdPartyLogin('alipay')">
+                    <svg viewBox="0 0 24 24" style="width: 28px; height: 28px; fill: white;">
+                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l6.59-6.59L18 9l-8 8z"/>
+                    </svg>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 24px;">
+                <span style="font-size: 14px; color: #8F959E;">还没有账号？</span>
+                <a href="#" style="font-size: 14px; color: #4A90D9; margin-left: 4px;" onclick="goToRegister()">立即注册</a>
+            </div>
+        </div>
+    </div>
+
+    <!-- 免责声明弹窗 -->
+    <div class="modal-mask active" id="disclaimerModal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <div class="modal-title">温馨提示</div>
+                <div class="modal-desc">请您仔细阅读以下内容</div>
+            </div>
+            <div class="modal-body" style="max-height: 300px; overflow-y: auto;">
+                <div style="font-size: 14px; color: #646A73; line-height: 1.8;">
+                    <p style="margin-bottom: 12px;">欢迎使用东软智慧健康咨询系统！</p>
+                    <p style="margin-bottom: 12px;">本平台提供的健康咨询服务仅供参考，不能替代专业的医疗诊断。如果您有健康问题，请务必咨询专业医生或前往医院就诊。</p>
+                    <p style="margin-bottom: 12px;">本平台的AI健康助手基于大数据和人工智能技术开发，旨在为用户提供健康信息参考。但由于每个人的身体状况不同，AI提供的建议可能并不完全适用于您的具体情况。</p>
+                    <p>在使用本平台服务前，请您确认已充分了解上述内容，并同意我们的服务条款和隐私政策。</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeDisclaimer()">不同意</button>
+                <button class="btn btn-primary" onclick="agreeDisclaimer()">我已阅读并同意</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast提示 -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        let countdown = 0;
+        let timer = null;
+
+        function getCode() {
+            const phone = document.getElementById('phone').value;
+            if (!/^1[3-9]\d{9}$/.test(phone)) {
+                showToast('请输入正确的手机号');
+                return;
+            }
+            
+            const btn = document.getElementById('getCodeBtn');
+            countdown = 60;
+            btn.textContent = `${countdown}s`;
+            btn.disabled = true;
+            btn.style.opacity = '0.6';
+            
+            timer = setInterval(() => {
+                countdown--;
+                if (countdown <= 0) {
+                    clearInterval(timer);
+                    btn.textContent = '获取验证码';
+                    btn.disabled = false;
+                    btn.style.opacity = '1';
+                } else {
+                    btn.textContent = `${countdown}s`;
+                }
+            }, 1000);
+            
+            showToast('验证码已发送');
+        }
+
+        function login() {
+            const phone = document.getElementById('phone').value;
+            const code = document.getElementById('code').value;
+            
+            if (!/^1[3-9]\d{9}$/.test(phone)) {
+                showToast('请输入正确的手机号');
+                return;
+            }
+            
+            if (!/^\d{6}$/.test(code)) {
+                showToast('请输入6位验证码');
+                return;
+            }
+            
+            showToast('登录成功');
+            setTimeout(() => {
+                window.location.href = 'index.html';
+            }, 1500);
+        }
+
+        function thirdPartyLogin(type) {
+            showToast(`${type === 'wechat' ? '微信' : '支付宝'}登录中...`);
+        }
+
+        function goToRegister() {
+            showToast('注册功能开发中');
+        }
+
+        function closeDisclaimer() {
+            showToast('您需要同意才能使用服务');
+        }
+
+        function agreeDisclaimer() {
+            document.getElementById('disclaimerModal').classList.remove('active');
+        }
+
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            toast.textContent = message;
+            toast.classList.add('active');
+            setTimeout(() => {
+                toast.classList.remove('active');
+            }, 2000);
+        }
+    </script>
+</body>
+</html>
