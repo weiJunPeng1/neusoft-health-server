@@ -5,7 +5,9 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.neusoft.health.common.exception.BusinessException;
 import com.neusoft.health.common.result.ResultCode;
 import com.neusoft.health.modules.member.dto.AdminGrantDTO;
+import com.neusoft.health.modules.member.entity.MemberLevel;
 import com.neusoft.health.modules.member.entity.UserMembership;
+import com.neusoft.health.modules.member.mapper.MemberLevelMapper;
 import com.neusoft.health.modules.member.mapper.UserMembershipMapper;
 import com.neusoft.health.modules.member.service.MemberService;
 import com.neusoft.health.modules.member.vo.MemberStatusVO;
@@ -26,6 +28,7 @@ import java.util.List;
 public class MemberServiceImpl extends ServiceImpl<UserMembershipMapper, UserMembership> implements MemberService {
 
     private final UserMapper userMapper;
+    private final MemberLevelMapper memberLevelMapper;
 
     private static final int GRACE_HOURS = 24;
 
@@ -50,25 +53,65 @@ public class MemberServiceImpl extends ServiceImpl<UserMembershipMapper, UserMem
             vo.setInGracePeriod(false);
         }
 
-        switch (level) {
-            case "L0":
-                vo.setLevelName("普通用户"); vo.setDailyQuota(3); vo.setContextRounds(5);
-                vo.setAutoSync(false); vo.setDeepAnalysis(false); vo.setExportEnabled(false);
-                break;
-            case "L1":
-                vo.setLevelName("白银会员"); vo.setDailyQuota(20); vo.setContextRounds(15);
-                vo.setAutoSync(true); vo.setDeepAnalysis(false); vo.setExportEnabled(true);
-                break;
-            case "L2":
-                vo.setLevelName("黄金会员"); vo.setDailyQuota(50); vo.setContextRounds(30);
-                vo.setAutoSync(true); vo.setDeepAnalysis(false); vo.setExportEnabled(true);
-                break;
-            case "L3":
-                vo.setLevelName("铂金会员"); vo.setDailyQuota(0); vo.setContextRounds(50);
-                vo.setAutoSync(true); vo.setDeepAnalysis(true); vo.setExportEnabled(true);
-                break;
+        MemberLevel levelConfig = memberLevelMapper.selectOne(new LambdaQueryWrapper<MemberLevel>()
+                .eq(MemberLevel::getLevelCode, level)
+                .eq(MemberLevel::getStatus, 1));
+
+        if (levelConfig != null) {
+            vo.setLevelName(levelConfig.getLevelName());
+            vo.setDailyQuota(levelConfig.getDailyQuota());
+            vo.setContextRounds(levelConfig.getContextRounds());
+            vo.setAutoSync(levelConfig.getAutoSync() == 1);
+            vo.setDeepAnalysis(levelConfig.getDeepAnalysis() == 1);
+            vo.setExportEnabled(levelConfig.getExportEnabled() == 1);
+        } else {
+            vo.setLevelName(getDefaultLevelName(level));
+            vo.setDailyQuota(getDefaultDailyQuota(level));
+            vo.setContextRounds(getDefaultContextRounds(level));
+            vo.setAutoSync(isAutoSync(level));
+            vo.setDeepAnalysis(isDeepAnalysis(level));
+            vo.setExportEnabled(isExportEnabled(level));
         }
         return vo;
+    }
+
+    private String getDefaultLevelName(String level) {
+        switch (level) {
+            case "L1": return "白银会员";
+            case "L2": return "黄金会员";
+            case "L3": return "铂金会员";
+            default: return "普通用户";
+        }
+    }
+
+    private int getDefaultDailyQuota(String level) {
+        switch (level) {
+            case "L1": return 20;
+            case "L2": return 50;
+            case "L3": return 0;
+            default: return 3;
+        }
+    }
+
+    private int getDefaultContextRounds(String level) {
+        switch (level) {
+            case "L1": return 15;
+            case "L2": return 30;
+            case "L3": return 50;
+            default: return 5;
+        }
+    }
+
+    private boolean isAutoSync(String level) {
+        return !"L0".equals(level);
+    }
+
+    private boolean isDeepAnalysis(String level) {
+        return "L3".equals(level);
+    }
+
+    private boolean isExportEnabled(String level) {
+        return !"L0".equals(level);
     }
 
     @Override
