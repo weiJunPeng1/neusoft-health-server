@@ -39,23 +39,29 @@ export interface MemberLevelVO {
 
 // 订阅方案
 export interface SubscriptionPlan {
-  planCode: string
-  planName: string
-  levelCode: string
-  durationDays: number
-  price: number
-  originalPrice: number
-  isFirstMonthPrice: boolean
+    id?: number
+    planCode: string
+    planName: string
+    levelCode: string
+    levelName?: string
+    durationDays: number
+    price: number
+    originalPrice: number
+    isFirstPurchasePrice?: boolean
 }
 
 // 支付订单
 export interface PaymentOrder {
-  orderNo: string
-  planName: string
-  amount: number
-  status: 'PENDING' | 'PAID' | 'CANCELLED' | 'REFUNDING' | 'REFUNDED'
-  createdTime: string
-  paidTime: string
+    orderNo: string
+    planId?: number
+    planName: string
+    amount: number
+    payMethod?: string
+    payStatus: 0 | 1 | 2 | 3 | 4 | 5
+    payStatusDesc?: string
+    createdTime: string
+    paidTime?: string
+    expireTime?: string
 }
 
 // 健康档案
@@ -71,10 +77,15 @@ export interface HealthProfile {
 
 // 用户设置
 export interface UserSettings {
-  notificationEnabled: boolean
-  voiceEnabled: boolean
+  notificationEnabled: number
+  voiceEnabled: number
   voiceSpeed: number
-  privacyMode: boolean
+  voiceVolume: number
+  voiceTone: string
+  anonymousMode: number
+  privacyMode: number
+  recommendEnabled: number
+  autoSyncHealthProfile: number
 }
 
 // 收藏
@@ -113,13 +124,20 @@ export interface ConsultMessage {
   createdTime: string
 }
 
-// FAQ分类
+// 首页数据（后端实际返回）
+export interface HomeData {
+  faqCategories: FaqCategory[]
+  articles: HealthArticle[]
+  disclaimer: string
+}
+
+// FAQ分类（含FAQ列表）
 export interface FaqCategory {
   id: number
   name: string
   icon: string
-  faqCount: number
-  children?: FaqCategory[]
+  sortOrder: number
+  faqList: FaqItem[]
 }
 
 // FAQ条目
@@ -127,8 +145,19 @@ export interface FaqItem {
   id: number
   categoryId: number
   question: string
-  answer: string
+  presetAnswer: string
   sortOrder: number
+}
+
+// 健康资讯
+export interface HealthArticle {
+  id: number
+  title: string
+  summary: string
+  coverUrl: string
+  contentUrl: string
+  sortOrder: number
+  createdTime: string
 }
 
 // 邀请信息
@@ -146,6 +175,23 @@ export interface RefundRequest {
   reason: string
   status: string
   createdTime: string
+}
+
+// 健康搜索结果
+export interface HealthSearchResult {
+  id: number
+  keyword: string
+  content: string
+  source: number
+  disclaimer: string
+}
+
+// 免责声明
+export interface Disclaimer {
+  id: number
+  content: string
+  version: string
+  updatedTime: string
 }
 
 // API 通用响应

@@ -2,34 +2,34 @@
   <view class="page">
     <NavHeader title="会员中心" theme="blue" :showBack="false" />
 
-    <scroll-view scroll-y class="page-scroll">
+    <scroll-view scroll-y class="page-scroll" :scroll-top="scrollTop">
       <!-- 会员状态卡片 -->
       <view class="member-status-card">
         <view class="status-top">
           <view class="level-badge">
-            <text class="level-icon">👑</text>
+            <SvgIcon name="crown" :size="28" color="#FFFFFF" />
           </view>
           <view class="status-info">
-            <text class="level-name">黄金会员</text>
-            <text class="level-expire">有效期至 2026-08-19</text>
+            <text class="level-name">{{ memberStatus.levelName || '普通用户' }}</text>
+            <text class="level-expire">有效期至 {{ memberStatus.expireTime || '未开通' }}</text>
           </view>
-          <view class="lv-tag">Lv.2</view>
+          <view class="lv-tag">{{ memberStatus.levelCode || 'L0' }}</view>
         </view>
         <view class="status-quotas">
           <view class="quota-item">
-            <text class="quota-val">50</text>
+            <text class="quota-val">{{ memberStatus.dailyQuota || 0 }}</text>
             <text class="quota-label">次/日</text>
           </view>
           <view class="quota-item">
-            <text class="quota-val">30</text>
+            <text class="quota-val">{{ memberStatus.contextRounds || 0 }}</text>
             <text class="quota-label">轮上下文</text>
           </view>
           <view class="quota-item">
-            <text class="quota-val">✓</text>
+            <text class="quota-val">{{ memberStatus.autoSync ? '✓' : '—' }}</text>
             <text class="quota-label">自动建档</text>
           </view>
           <view class="quota-item">
-            <text class="quota-val">—</text>
+            <text class="quota-val">{{ memberStatus.deepAnalysis ? '✓' : '—' }}</text>
             <text class="quota-label">深度分析</text>
           </view>
         </view>
@@ -38,17 +38,17 @@
       <!-- 订阅方案 -->
       <view class="section-title">订阅会员</view>
       <view class="plan-list">
-        <view class="plan-card" v-for="p in plans" :key="p.code">
+        <view class="plan-card" v-for="p in plans" :key="p.planCode">
           <view class="plan-left">
-            <text class="plan-name">{{ p.name }}</text>
+            <text class="plan-name">{{ p.planName }}</text>
             <view class="plan-price-row">
               <text class="plan-price">¥{{ p.price }}</text>
               <text v-if="p.originalPrice" class="plan-original">¥{{ p.originalPrice }}</text>
             </view>
-            <text class="plan-quota">{{ p.quota }}次/日 · {{ p.rounds }}轮上下文</text>
+            <text class="plan-quota">{{ p.durationDays }}天 · {{ p.levelCode }}</text>
           </view>
           <view class="plan-right">
-            <button class="subscribe-btn" @click="doSubscribe(p.code)">立即开通</button>
+            <button class="subscribe-btn" @click="doSubscribe(p.planCode)">立即开通</button>
           </view>
         </view>
       </view>
@@ -67,16 +67,18 @@
       <Card>
         <view class="history-item" v-for="h in history" :key="h.id">
           <view class="history-left">
-            <text class="history-name">{{ h.plan }}</text>
-            <text class="history-time">{{ h.time }}</text>
+            <text class="history-name">{{ h.planName || h.levelName || '订阅' }}</text>
+            <text class="history-time">{{ h.createdTime || h.startTime || '' }}</text>
           </view>
-          <view :class="['history-status', h.status === 'active' ? 's-active' : 's-expired']">{{ h.statusText }}</view>
+          <view :class="['history-status', h.status === 'active' || h.status === 'PAID' ? 's-active' : 's-expired']">{{ h.statusText || h.status }}</view>
+        </view>
+        <view v-if="history.length === 0" class="empty-hint">
+          <text class="empty-text">暂无订阅记录</text>
         </view>
       </Card>
 
       <view style="height: 80px;" />
     </scroll-view>
-
     <TabBar current="member" />
   </view>
 </template>
@@ -84,35 +86,99 @@
 <script setup lang="ts">
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
-import TabBar from '@/components/TabBar/TabBar.vue'
-import { reactive } from 'vue'
+import { reactive, onMounted } from 'vue'
+import { useScrollToTop } from '@/composables/useScrollToTop'
+import { memberApi } from '@/api/member'
+import { paymentApi } from '@/api/payment'
+import { useUserStore } from '@/stores/user'
+import type { MemberStatus, MemberLevelVO, SubscriptionPlan } from '@/types'
 
-const plans = [
-  { code: 'L1_M', name: '白银月卡', price: '19.9', originalPrice: '39.9', quota: '20', rounds: '15' },
-  { code: 'L2_M', name: '黄金月卡', price: '39.9', originalPrice: '59.9', quota: '50', rounds: '30' },
-  { code: 'L3_M', name: '铂金月卡', price: '69.9', originalPrice: '99.9', quota: '∞', rounds: '50' },
+const { scrollTop } = useScrollToTop()
+
+const memberStatus = reactive<MemberStatus>({
+  levelCode: '',
+  levelName: '',
+  dailyQuota: 0,
+  contextRounds: 0,
+  autoSync: false,
+  deepAnalysis: false,
+  exportEnabled: false,
+  expireTime: '',
+  remainingDays: 0,
+  inGracePeriod: false
+})
+
+const levels = reactive<MemberLevelVO[]>([])
+const plans = reactive<SubscriptionPlan[]>([])
+const history = reactive<any[]>([])
+
+const benefits = [
+  { name: '每日咨询次数', key: 'dailyQuota', values: [3, 20, 50, '∞'] },
+  { name: '上下文轮数', key: 'contextRounds', values: [5, 15, 30, 50] },
+  { name: '自动建档', key: 'autoSync', values: [false, true, true, true] },
+  { name: '深度分析', key: 'deepAnalysis', values: [false, false, false, true] },
+  { name: '导出记录', key: 'exportEnabled', values: [false, true, true, true] },
 ]
 
-const benefits = reactive([
-  { name: '每日咨询次数', values: ['3', '20', '50', '∞'] },
-  { name: '上下文轮数', values: ['5', '15', '30', '50'] },
-  { name: '自动建档', values: ['—', '✓', '✓', '✓'] },
-  { name: '深度分析', values: ['—', '—', '—', '✓'] },
-  { name: '导出记录', values: ['—', '✓', '✓', '✓'] },
-])
-
-const history = reactive([
-  { id: 1, plan: '黄金月卡', time: '2026-05-20', status: 'active', statusText: '生效中' },
-  { id: 2, plan: '白银月卡', time: '2026-04-20', status: 'expired', statusText: '已过期' },
-])
-
-const doSubscribe = (code: string) => {
-  uni.navigateTo({ url: '/pages/payment/index' })
+const doSubscribe = async (code: string) => {
+  try {
+    uni.showLoading({ title: '创建订单中...' })
+    const res = await paymentApi.createOrder(code)
+    uni.hideLoading()
+    uni.navigateTo({ url: `/pages/payment/index?orderNo=${res.data.orderNo}` })
+  } catch (err) {
+    uni.hideLoading()
+    console.error('创建订单失败', err)
+    uni.showToast({ title: '创建订单失败', icon: 'none' })
+  }
 }
+
+onMounted(async () => {
+  if (!useUserStore.isLoggedIn) {
+    console.log('用户未登录，跳转到登录页')
+    uni.navigateTo({ url: '/pages/login/index' })
+    return
+  }
+  
+  try {
+    const [statusRes, levelsRes] = await Promise.all([
+      memberApi.getStatus(),
+      memberApi.getLevels()
+    ])
+    Object.assign(memberStatus, statusRes.data)
+    levels.splice(0, levels.length, ...levelsRes.data)
+  } catch (err: any) {
+    console.error('获取会员信息失败', err)
+    if (err.code === 401) {
+      uni.removeStorageSync('token')
+      useUserStore.logout()
+    }
+  }
+
+  try {
+    const plansRes = await paymentApi.getPlans()
+    plans.splice(0, plans.length, ...plansRes.data)
+  } catch (err) {
+    console.error('获取订阅方案失败', err)
+  }
+
+  try {
+    const historyRes = await memberApi.getHistory()
+    if (historyRes.data) {
+      history.splice(0, history.length, ...historyRes.data)
+    }
+  } catch (err: any) {
+    console.error('获取订阅历史失败', err)
+    if (err.code === 401) {
+      uni.removeStorageSync('token')
+      useUserStore.logout()
+    }
+  }
+})
 </script>
 
 <style scoped>
-.page { height: 100vh; display: flex; flex-direction: column; background: #F5F7FA; }
+.page { min-height: 100vh; display: flex; flex-direction: column; background: #F5F7FA; box-sizing: border-box; }
 .page-scroll { flex: 1; }
 
 .member-status-card {
@@ -202,4 +268,7 @@ const doSubscribe = (code: string) => {
 .history-status { font-size: 12px; padding: 3px 10px; border-radius: 10px; }
 .s-active { background: #F0FFF4; color: #52C41A; }
 .s-expired { background: #F5F7FA; color: #BBBFC4; }
+
+.empty-hint { padding: 40px 0; text-align: center; }
+.empty-text { font-size: 14px; color: #BBBFC4; }
 </style>

@@ -17,4 +17,5 @@ public class MemberStatusVO {
     private LocalDateTime expireTime;
     private Integer remainingDays;
     private Boolean inGracePeriod;
+    private Integer todayUsed;
 }

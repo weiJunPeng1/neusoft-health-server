@@ -2,18 +2,19 @@
   <view class="page">
     <NavHeader title="我的" theme="blue" :showBack="false" />
 
-    <scroll-view scroll-y class="page-scroll">
+    <scroll-view scroll-y class="page-scroll" :scroll-top="scrollTop">
       <!-- 用户信息卡片 -->
       <view class="user-card">
         <view class="user-avatar">
-          <text class="avatar-icon">👤</text>
+          <SvgIcon v-if="!userInfo.avatar" name="user" :size="28" color="#FFFFFF" />
+          <text v-else class="avatar-icon">{{ userInfo.avatar }}</text>
         </view>
         <view class="user-info">
-          <text class="user-name">健康用户</text>
-          <text class="user-phone">138****8888</text>
+          <text class="user-name">{{ userInfo.nickname || '健康用户' }}</text>
+          <text class="user-phone">{{ userInfo.phone }}</text>
         </view>
         <view class="user-level">
-          <text class="level-text">黄金会员</text>
+          <text class="level-text">{{ memberStatus.levelName || '普通用户' }}</text>
         </view>
       </view>
 
@@ -21,10 +22,10 @@
       <Card>
         <view class="menu-list">
           <view class="menu-item" v-for="m in menus" :key="m.page" @click="navTo(m.page)">
-            <text class="menu-icon">{{ m.icon }}</text>
+            <SvgIcon :name="m.icon" :size="20" color="#4A90D9" />
             <text class="menu-label">{{ m.text }}</text>
             <text v-if="m.badge" class="menu-badge">{{ m.badge }}</text>
-            <text class="menu-arrow">›</text>
+            <SvgIcon name="chevron-right" :size="18" color="#BBBFC4" />
           </view>
         </view>
       </Card>
@@ -33,16 +34,15 @@
       <Card title="其他">
         <view class="menu-list">
           <view class="menu-item" v-for="m in bottomMenus" :key="m.page" @click="navTo(m.page)">
-            <text class="menu-icon">{{ m.icon }}</text>
+            <SvgIcon :name="m.icon" :size="20" color="#4A90D9" />
             <text class="menu-label">{{ m.text }}</text>
-            <text class="menu-arrow">›</text>
+            <SvgIcon name="chevron-right" :size="18" color="#BBBFC4" />
           </view>
         </view>
       </Card>
 
       <view style="height: 80px;" />
     </scroll-view>
-
     <TabBar current="profile" />
   </view>
 </template>
@@ -50,19 +50,51 @@
 <script setup lang="ts">
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
-import TabBar from '@/components/TabBar/TabBar.vue'
+import { reactive, onMounted } from 'vue'
+import { useScrollToTop } from '@/composables/useScrollToTop'
+import { userApi } from '@/api/user'
+import { memberApi } from '@/api/member'
+import { useUserStore } from '@/stores/user'
+import type { UserProfile, MemberStatus } from '@/types'
+
+const { scrollTop } = useScrollToTop()
+
+const userInfo = reactive<UserProfile>({
+  id: 0,
+  phone: '',
+  nickname: '',
+  avatar: '',
+  gender: 0,
+  birthday: '',
+  memberLevel: '',
+  memberExpireTime: '',
+  status: 1
+})
+
+const memberStatus = reactive<MemberStatus>({
+  levelCode: '',
+  levelName: '',
+  dailyQuota: 0,
+  contextRounds: 0,
+  autoSync: false,
+  deepAnalysis: false,
+  exportEnabled: false,
+  expireTime: '',
+  remainingDays: 0,
+  inGracePeriod: false
+})
 
 const menus = [
-  { text: '我的收藏', page: 'collections', icon: '❤️', badge: '5' },
-  { text: '咨询历史', page: 'consult-history', icon: '💬' },
-  { text: '健康档案', page: 'health-record', icon: '📋' },
-  { text: '我的订单', page: 'order', icon: '📦' },
-  { text: '消息中心', page: 'messages', icon: '💌', badge: '3' },
-  { text: '会员中心', page: 'member', icon: '👑' },
+  { text: '我的收藏', page: 'collections', icon: 'heart' },
+  { text: '咨询历史', page: 'consult-history', icon: 'message' },
+  { text: '健康档案', page: 'health-record', icon: 'clipboard' },
+  { text: '我的订单', page: 'order', icon: 'package' },
+  { text: '消息中心', page: 'messages', icon: 'mail' },
+  { text: '会员中心', page: 'member', icon: 'crown' },
 ]
 
 const bottomMenus = [
-  { text: '设置', page: 'settings', icon: '⚙️' },
+  { text: '设置', page: 'settings', icon: 'settings' },
 ]
 
 const navTo = (page: string) => {
@@ -73,11 +105,37 @@ const navTo = (page: string) => {
     uni.navigateTo({ url: `/pages/${page}/index` })
   }
 }
+
+const loadUserData = async () => {
+  if (!useUserStore.isLoggedIn) {
+    console.log('用户未登录，跳转到登录页')
+    uni.navigateTo({ url: '/pages/login/index' })
+    return
+  }
+  try {
+    const [profileRes, memberRes] = await Promise.all([
+      userApi.getProfile(),
+      memberApi.getStatus()
+    ])
+    Object.assign(userInfo, profileRes.data)
+    Object.assign(memberStatus, memberRes.data)
+  } catch (err: any) {
+    console.error('获取用户信息失败', err)
+    if (err.code === 401) {
+      uni.removeStorageSync('token')
+      useUserStore.logout()
+    }
+  }
+}
+
+onMounted(() => {
+  loadUserData()
+})
 </script>
 
 <style scoped>
-.page { height: 100vh; display: flex; flex-direction: column; background: #F5F7FA; }
-.scroll-body { height: calc(100vh - 56px - 56px - 16px); padding-top: 16px; }
+.page { min-height: 100vh; display: flex; flex-direction: column; background: #F5F7FA; box-sizing: border-box; }
+.page-scroll { flex: 1; }
 
 .user-card {
   margin: 0 16px 16px;

@@ -20,7 +20,7 @@ public final class AesUtil {
     /**
      * AES加密器实例
      */
-    private static final AES AES = SecureUtil.aes("neusoft-health-aes-secret-key!!".getBytes(StandardCharsets.UTF_8));
+    private static final AES AES = SecureUtil.aes("neusoft-health-aes-secret-key!!!".getBytes(StandardCharsets.UTF_8));
 
     /**
      * 私有构造方法，防止实例化

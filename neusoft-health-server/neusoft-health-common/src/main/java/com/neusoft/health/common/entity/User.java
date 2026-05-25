@@ -1,4 +1,4 @@
-package com.neusoft.health.modules.system.entity;
+package com.neusoft.health.common.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;

@@ -11,4 +11,6 @@ public interface PaymentService {
     PaymentOrderVO queryOrder(String orderNo);
     void cancelOrder(String orderNo, Long userId);
     void handleAlipayCallback(String orderNo, String transactionId);
+    List<PaymentOrderVO> listOrders(Long userId);
+    void simulatePayment(String orderNo);
 }

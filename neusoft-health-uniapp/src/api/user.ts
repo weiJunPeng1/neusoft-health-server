@@ -1,5 +1,10 @@
 import { request } from './request'
-import type { UserProfile, HealthProfile, UserSettings, UserFavorite, LoginLog } from '@/types'
+import type { UserProfile, HealthProfile, UserSettings, UserFavorite, LoginLog, HomeData, Disclaimer } from '@/types'
+
+export const systemApi = {
+  getHomeData: () => request<HomeData>({ url: '/api/v1/home' }),
+  acceptDisclaimer: () => request<void>({ url: '/api/v1/disclaimer/accept', method: 'POST' }),
+}
 
 export const userApi = {
   // 用户基本信息 (UserController)
@@ -35,7 +40,6 @@ export const userApi = {
   }),
   getFavorites: () => request<UserFavorite[]>({ url: '/api/v1/user/favorites' }),
   checkFavorite: (messageId: number) => request<boolean>({
-    url: '/api/v1/user/favorite/check',
-    params: { messageId },
+    url: `/api/v1/user/favorite/check?messageId=${messageId}`,
   }),
 }

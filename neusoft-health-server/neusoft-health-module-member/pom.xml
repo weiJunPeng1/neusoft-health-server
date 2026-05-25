@@ -18,7 +18,7 @@
         </dependency>
         <dependency>
             <groupId>com.neusoft</groupId>
-            <artifactId>neusoft-health-module-system</artifactId>
+            <artifactId>neusoft-health-common</artifactId>
         </dependency>
         <dependency>
             <groupId>com.baomidou</groupId>
@@ -39,6 +39,11 @@
             <artifactId>swagger-annotations-jakarta</artifactId>
             <version>2.2.46</version>
             <scope>compile</scope>
+        </dependency>
+        <dependency>
+            <groupId>com.alipay.sdk</groupId>
+            <artifactId>alipay-sdk-java</artifactId>
+            <version>4.35.7.ALL</version>
         </dependency>
     </dependencies>
     <build>

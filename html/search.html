@@ -8,7 +8,6 @@
 </head>
 <body>
     <div class="container">
-        <!-- 顶部导航 -->
         <div class="nav-header nav-header-light">
             <div class="nav-back" onclick="goBack()">
                 <svg viewBox="0 0 24 24">
@@ -20,7 +19,7 @@
                     <svg viewBox="0 0 24 24">
                         <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.77l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
                     </svg>
-                    <input type="text" id="searchInput" placeholder="搜索健康问题、症状、疾病..." oninput="handleSearch()" />
+                    <input type="text" id="searchInput" placeholder="搜索健康问题、症状、疾病..." autofocus />
                 </div>
             </div>
             <div class="nav-action" onclick="clearSearch()">
@@ -30,115 +29,37 @@
             </div>
         </div>
 
-        <!-- 搜索结果区域 -->
         <div class="page-container" style="padding-top: 72px;">
-            <!-- 热门搜索 -->
             <div class="card" id="hotSearch" style="display: block;">
                 <div class="card-header">
                     <span class="card-title">热门搜索</span>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(53, 123, 189, 0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search('感冒发烧怎么办')">感冒发烧怎么办</span>
-                    <span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(53, 123, 189, 0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search('头痛原因')">头痛原因</span>
-                    <span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(53, 123, 189, 0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search('失眠调理')">失眠调理</span>
-                    <span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(53, 123, 189, 0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search('高血压')">高血压</span>
-                    <span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(53, 123, 189, 0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search('糖尿病饮食')">糖尿病饮食</span>
-                    <span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74, 144, 217, 0.1) 0%, rgba(53, 123, 189, 0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search('皮肤过敏')">皮肤过敏</span>
-                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="hotTags"></div>
             </div>
 
-            <!-- 搜索历史 -->
             <div class="card" id="searchHistory" style="display: block;">
                 <div class="card-header">
                     <span class="card-title">搜索历史</span>
                     <span class="card-extra" onclick="clearHistory()">清空</span>
                 </div>
-                <div style="display: flex; flex-wrap: wrap; gap: 8px;">
-                    <span class="history-tag" style="padding: 8px 16px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-secondary); cursor: pointer; position: relative;" onclick="search('如何预防感冒')">
-                        如何预防感冒
-                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: var(--text-placeholder); position: absolute; right: 6px; top: 50%; transform: translateY(-50%);" onclick="deleteHistory(event, '如何预防感冒')">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-                        </svg>
-                    </span>
-                    <span class="history-tag" style="padding: 8px 16px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-secondary); cursor: pointer; position: relative;" onclick="search('心脏健康')">
-                        心脏健康
-                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: var(--text-placeholder); position: absolute; right: 6px; top: 50%; transform: translateY(-50%);" onclick="deleteHistory(event, '心脏健康')">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-                        </svg>
-                    </span>
-                    <span class="history-tag" style="padding: 8px 16px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-secondary); cursor: pointer; position: relative;" onclick="search('减肥方法')">
-                        减肥方法
-                        <svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: var(--text-placeholder); position: absolute; right: 6px; top: 50%; transform: translateY(-50%);" onclick="deleteHistory(event, '减肥方法')">
-                            <path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/>
-                        </svg>
-                    </span>
-                </div>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px;" id="historyTags"></div>
             </div>
 
-            <!-- 搜索结果 -->
             <div id="searchResults" style="display: none;">
                 <div style="display: flex; align-items: center; gap: 8px; margin-bottom: 16px;">
                     <span style="font-size: 14px; color: var(--text-secondary);">搜索结果</span>
-                    <span class="tag tag-primary" id="resultCount">12条</span>
+                    <span class="tag tag-primary" id="searchTerm"></span>
+                    <span id="resultSource" style="font-size: 12px; color: var(--text-placeholder);"></span>
                 </div>
-
-                <!-- 搜索结果列表 -->
-                <div class="search-result-item" onclick="goToConsult('感冒发烧怎么办')">
-                    <div class="result-title">感冒发烧怎么办？</div>
-                    <div class="result-desc">感冒是一种常见的上呼吸道感染疾病，通常由病毒引起。发烧是身体的一种防御机制，帮助抵抗感染。了解如何正确处理感冒发烧，有助于快速恢复健康。</div>
-                    <div class="result-tags">
-                        <span class="result-tag">健康知识</span>
-                        <span class="result-tag">感冒</span>
-                    </div>
-                </div>
-
-                <div class="search-result-item" onclick="goToConsult('感冒预防')">
-                    <div class="result-title">如何预防感冒？</div>
-                    <div class="result-desc">预防感冒比治疗更重要。通过保持良好的卫生习惯、增强免疫力、保持室内通风等方法，可以有效降低感冒的风险。</div>
-                    <div class="result-tags">
-                        <span class="result-tag">健康知识</span>
-                        <span class="result-tag">预防</span>
-                    </div>
-                </div>
-
-                <div class="search-result-item" onclick="goToConsult('儿童感冒')">
-                    <div class="result-title">儿童感冒的护理方法</div>
-                    <div class="result-desc">儿童免疫系统尚未完全发育，更容易感冒。了解正确的护理方法，帮助孩子尽快恢复健康。</div>
-                    <div class="result-tags">
-                        <span class="result-tag">育儿知识</span>
-                        <span class="result-tag">儿童健康</span>
-                    </div>
-                </div>
-
-                <div class="search-result-item" onclick="goToConsult('感冒用药')">
-                    <div class="result-title">感冒用药注意事项</div>
-                    <div class="result-desc">选择合适的感冒药需要根据症状和体质，同时要注意用药安全，避免滥用药物。</div>
-                    <div class="result-tags">
-                        <span class="result-tag">用药指导</span>
-                        <span class="result-tag">安全用药</span>
-                    </div>
-                </div>
-
-                <div class="search-result-item" onclick="goToConsult('流感和普通感冒区别')">
-                    <div class="result-title">流感和普通感冒的区别</div>
-                    <div class="result-desc">流感和普通感冒虽然症状相似，但病因和严重程度不同。了解它们的区别有助于正确判断和处理。</div>
-                    <div class="result-tags">
-                        <span class="result-tag">疾病知识</span>
-                        <span class="result-tag">流感</span>
-                    </div>
-                </div>
-
-                <div class="search-result-item" onclick="goToConsult('感冒饮食')">
-                    <div class="result-title">感冒期间的饮食建议</div>
-                    <div class="result-desc">感冒期间的饮食对恢复至关重要。清淡易消化的食物、充足的水分和适当的营养补充有助于身体恢复。</div>
-                    <div class="result-tags">
-                        <span class="result-tag">饮食健康</span>
-                        <span class="result-tag">养生</span>
-                    </div>
-                </div>
+                <div id="resultList"></div>
+                <div class="search-disclaimer" id="searchDisclaimer" style="margin-top: 16px; padding: 12px; background: rgba(74,144,217,0.08); border-radius: 8px; font-size: 12px; color: var(--text-placeholder); line-height: 1.6; display: none;"></div>
             </div>
 
-            <!-- 空状态 -->
+            <div class="loading-state" id="loadingState" style="display: none; text-align: center; padding: 60px 20px;">
+                <div class="loading-spinner" style="width: 36px; height: 36px; border: 3px solid var(--bg-secondary); border-top: 3px solid var(--primary-color); border-radius: 50%; margin: 0 auto 12px; animation: spin 0.8s linear infinite;"></div>
+                <div style="font-size: 14px; color: var(--text-secondary);">AI正在搜索健康知识...</div>
+            </div>
+
             <div class="empty-state" id="emptyState" style="display: none;">
                 <div class="empty-icon">
                     <svg viewBox="0 0 24 24">
@@ -150,31 +71,203 @@
             </div>
         </div>
 
-        <!-- Toast提示 -->
         <div class="toast" id="toast"></div>
     </div>
 
+    <style>
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .result-item { padding: 16px; background: var(--bg-secondary); border-radius: 12px; margin-bottom: 12px; cursor: pointer; transition: background 0.2s; }
+        .result-item:hover { background: rgba(74,144,217,0.08); }
+        .result-content { font-size: 14px; color: var(--text-primary); line-height: 1.8; white-space: pre-wrap; word-break: break-all; }
+    </style>
+
     <script>
-        function goBack() {
-            window.location.href = 'index.html';
+        var HOT_KEYWORDS = ['感冒发烧怎么办', '头痛原因', '失眠调理', '高血压饮食', '糖尿病饮食', '皮肤过敏', '颈椎疼痛', '胃痛怎么办'];
+        var API_URL = '/api/v1/health-search';
+        var searchTimer = null;
+
+        initPage();
+
+        function initPage() {
+            renderHotTags();
+            renderHistory();
+            bindInputEvents();
         }
 
-        function handleSearch() {
-            const keyword = document.getElementById('searchInput').value.trim();
-            if (keyword) {
-                document.getElementById('hotSearch').style.display = 'none';
-                document.getElementById('searchHistory').style.display = 'none';
-                document.getElementById('searchResults').style.display = 'block';
-                document.getElementById('emptyState').style.display = 'none';
-                document.getElementById('resultCount').textContent = `${Math.floor(Math.random() * 10) + 8}条`;
-            } else {
-                showDefault();
-            }
+        function bindInputEvents() {
+            var input = document.getElementById('searchInput');
+            input.addEventListener('input', function () {
+                clearTimeout(searchTimer);
+                var kw = input.value.trim();
+                if (!kw) {
+                    showDefault();
+                    return;
+                }
+                searchTimer = setTimeout(function () {
+                    doSearch(kw);
+                }, 500);
+            });
+            input.addEventListener('keydown', function (e) {
+                if (e.key === 'Enter') {
+                    clearTimeout(searchTimer);
+                    var kw = input.value.trim();
+                    if (kw) doSearch(kw);
+                }
+            });
         }
 
         function search(keyword) {
             document.getElementById('searchInput').value = keyword;
-            handleSearch();
+            doSearch(keyword);
+        }
+
+        function doSearch(keyword) {
+            if (!keyword) return;
+            showLoading();
+            saveHistory(keyword);
+
+            fetch(API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ keyword: keyword })
+            })
+            .then(function (res) { return res.json(); })
+            .then(function (json) {
+                hideLoading();
+                if (json.code === 0 && json.data) {
+                    showResult(keyword, json.data);
+                } else {
+                    showEmpty();
+                }
+            })
+            .catch(function (err) {
+                hideLoading();
+                console.error('搜索失败:', err);
+                showEmpty();
+            });
+        }
+
+        function showResult(keyword, data) {
+            document.getElementById('hotSearch').style.display = 'none';
+            document.getElementById('searchHistory').style.display = 'none';
+            document.getElementById('searchResults').style.display = 'block';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+
+            document.getElementById('searchTerm').textContent = '"' + keyword + '"';
+
+            var sourceText = '';
+            if (data.source === 1) {
+                sourceText = '来源：AI生成';
+            } else if (data.source === 2) {
+                sourceText = '来源：知识库';
+            }
+            document.getElementById('resultSource').textContent = sourceText;
+
+            var list = document.getElementById('resultList');
+            var html = '<div class="result-item">';
+            html += '<div class="result-content">' + escapeHtml(data.content || '暂无相关内容') + '</div>';
+            html += '</div>';
+            list.innerHTML = html;
+
+            if (data.disclaimer) {
+                var disc = document.getElementById('searchDisclaimer');
+                disc.textContent = data.disclaimer;
+                disc.style.display = 'block';
+            } else {
+                document.getElementById('searchDisclaimer').style.display = 'none';
+            }
+
+            renderHistory();
+        }
+
+        function showLoading() {
+            document.getElementById('hotSearch').style.display = 'none';
+            document.getElementById('searchHistory').style.display = 'none';
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'block';
+            document.getElementById('emptyState').style.display = 'none';
+        }
+
+        function hideLoading() {
+            document.getElementById('loadingState').style.display = 'none';
+        }
+
+        function showEmpty() {
+            document.getElementById('hotSearch').style.display = 'none';
+            document.getElementById('searchHistory').style.display = 'none';
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+        }
+
+        function showDefault() {
+            document.getElementById('hotSearch').style.display = 'block';
+            document.getElementById('searchHistory').style.display = 'block';
+            document.getElementById('searchResults').style.display = 'none';
+            document.getElementById('loadingState').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'none';
+            renderHistory();
+        }
+
+        function renderHotTags() {
+            var container = document.getElementById('hotTags');
+            var html = '';
+            for (var i = 0; i < HOT_KEYWORDS.length; i++) {
+                html += '<span class="hot-tag" style="padding: 8px 16px; background: linear-gradient(135deg, rgba(74,144,217,0.1) 0%, rgba(53,123,189,0.1) 100%); border-radius: 20px; font-size: 13px; color: var(--primary-color); cursor: pointer;" onclick="search(\'' + escapeAttr(HOT_KEYWORDS[i]) + '\')">' + escapeHtml(HOT_KEYWORDS[i]) + '</span>';
+            }
+            container.innerHTML = html;
+        }
+
+        function renderHistory() {
+            var container = document.getElementById('historyTags');
+            var history = getHistory();
+            if (history.length === 0) {
+                container.innerHTML = '<div style="font-size: 13px; color: var(--text-placeholder); padding: 8px 0;">暂无搜索历史</div>';
+                return;
+            }
+            var html = '';
+            for (var i = 0; i < history.length; i++) {
+                var kw = history[i];
+                html += '<span class="history-tag" style="padding: 8px 28px 8px 16px; background: var(--bg-secondary); border-radius: 20px; font-size: 13px; color: var(--text-secondary); cursor: pointer; position: relative; display: inline-block;" onclick="search(\'' + escapeAttr(kw) + '\')">';
+                html += escapeHtml(kw);
+                html += '<svg viewBox="0 0 24 24" style="width: 14px; height: 14px; fill: var(--text-placeholder); position: absolute; right: 6px; top: 50%; transform: translateY(-50%); cursor: pointer;" onclick="deleteHistory(event, \'' + escapeAttr(kw) + '\')"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12 19 6.41z"/></svg>';
+                html += '</span>';
+            }
+            container.innerHTML = html;
+        }
+
+        function getHistory() {
+            try {
+                return JSON.parse(localStorage.getItem('health_search_history') || '[]');
+            } catch (e) {
+                return [];
+            }
+        }
+
+        function saveHistory(keyword) {
+            var history = getHistory();
+            var idx = history.indexOf(keyword);
+            if (idx > -1) history.splice(idx, 1);
+            history.unshift(keyword);
+            if (history.length > 20) history.pop();
+            localStorage.setItem('health_search_history', JSON.stringify(history));
+        }
+
+        function clearHistory() {
+            localStorage.removeItem('health_search_history');
+            renderHistory();
+            showToast('搜索历史已清空');
+        }
+
+        function deleteHistory(event, keyword) {
+            event.stopPropagation();
+            var history = getHistory();
+            var idx = history.indexOf(keyword);
+            if (idx > -1) history.splice(idx, 1);
+            localStorage.setItem('health_search_history', JSON.stringify(history));
+            renderHistory();
+            showToast('已删除 "' + keyword + '"');
         }
 
         function clearSearch() {
@@ -186,34 +279,25 @@
             showDefault();
         }
 
-        function showDefault() {
-            document.getElementById('hotSearch').style.display = 'block';
-            document.getElementById('searchHistory').style.display = 'block';
-            document.getElementById('searchResults').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'none';
+        function goBack() {
+            window.location.href = 'index.html';
         }
 
-        function clearHistory() {
-            showToast('搜索历史已清空');
+        function escapeHtml(str) {
+            var div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
         }
 
-        function deleteHistory(event, keyword) {
-            event.stopPropagation();
-            showToast(`已删除 "${keyword}"`);
-        }
-
-        function goToConsult(question) {
-            showToast('正在跳转咨询...');
-            setTimeout(() => {
-                window.location.href = `consult.html?question=${encodeURIComponent(question)}`;
-            }, 1000);
+        function escapeAttr(str) {
+            return str.replace(/'/g, "\\'").replace(/"/g, '&quot;');
         }
 
         function showToast(message) {
-            const toast = document.getElementById('toast');
+            var toast = document.getElementById('toast');
             toast.textContent = message;
             toast.classList.add('active');
-            setTimeout(() => {
+            setTimeout(function () {
                 toast.classList.remove('active');
             }, 2000);
         }

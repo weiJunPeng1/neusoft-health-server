@@ -273,10 +273,15 @@ CREATE TABLE user_health_profiles (
 CREATE TABLE user_settings (
     id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
     user_id BIGINT UNSIGNED NOT NULL UNIQUE,
-    notification_enabled TINYINT DEFAULT 1,
-    voice_speed DECIMAL(2,1) DEFAULT 1.0,
-    privacy_anonymous TINYINT DEFAULT 0,
-    allow_recommend TINYINT DEFAULT 1,
+    notification_enabled TINYINT DEFAULT 1 COMMENT '通知开关：0=关闭，1=开启',
+    voice_enabled TINYINT DEFAULT 1 COMMENT '语音播报开关：0=关闭，1=开启',
+    voice_speed DECIMAL(3,1) DEFAULT 1.0 COMMENT '语音播报语速（默认1.0，范围0.5-2.0）',
+    voice_volume INT DEFAULT 80 COMMENT '语音音量（默认80，范围0-100）',
+    voice_tone VARCHAR(20) DEFAULT 'default' COMMENT '语音音色（default/male/female/child）',
+    anonymous_mode TINYINT DEFAULT 0 COMMENT '匿名咨询模式：0=关闭，1=开启',
+    privacy_mode TINYINT DEFAULT 0 COMMENT '隐私模式：0=关闭，1=开启',
+    recommend_enabled TINYINT DEFAULT 1 COMMENT '是否允许推荐健康科普：0=否，1=是',
+    auto_sync_health_profile TINYINT DEFAULT 1 COMMENT '健康档案自动同步：0=关闭，1=开启',
     created_time DATETIME,
     updated_time DATETIME,
     INDEX idx_user_id(user_id)
@@ -295,7 +300,115 @@ CREATE TABLE user_favorites (
 ) COMMENT '用户收藏';
 ```
 
-### 5.4 管理后台模块
+### 5.4 会员与支付模块
+
+```sql
+-- 会员等级定义表
+CREATE TABLE member_levels (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    level_code VARCHAR(10) NOT NULL UNIQUE COMMENT 'L0/L1/L2/L3',
+    level_name VARCHAR(50) NOT NULL COMMENT '等级名称',
+    daily_quota INT DEFAULT 0 COMMENT '每日咨询次数',
+    context_rounds INT DEFAULT 0 COMMENT '上下文轮数',
+    auto_sync TINYINT DEFAULT 0 COMMENT '自动同步健康档案',
+    deep_analysis TINYINT DEFAULT 0 COMMENT '深度分析',
+    export_enabled TINYINT DEFAULT 0 COMMENT '导出报告',
+    share_limit INT DEFAULT 0 COMMENT '分享次数',
+    description TEXT COMMENT '权益说明',
+    sort_order INT DEFAULT 0,
+    status TINYINT DEFAULT 1,
+    created_time DATETIME,
+    updated_time DATETIME,
+    INDEX idx_level_code(level_code)
+) COMMENT '会员等级定义';
+
+-- 订阅方案表
+CREATE TABLE subscription_plans (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    plan_code VARCHAR(50) NOT NULL UNIQUE COMMENT '方案编码',
+    plan_name VARCHAR(100) NOT NULL COMMENT '方案名称',
+    level_code VARCHAR(10) NOT NULL COMMENT '对应会员等级',
+    duration_days INT NOT NULL COMMENT '有效天数',
+    price DECIMAL(10,2) NOT NULL COMMENT '价格',
+    original_price DECIMAL(10,2) COMMENT '原价',
+    description TEXT COMMENT '方案说明',
+    sort_order INT DEFAULT 0,
+    status TINYINT DEFAULT 1,
+    created_time DATETIME,
+    updated_time DATETIME,
+    INDEX idx_level_code(level_code),
+    INDEX idx_plan_code(plan_code)
+) COMMENT '订阅方案';
+
+-- 支付订单表
+CREATE TABLE payment_orders (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_no VARCHAR(64) NOT NULL UNIQUE COMMENT '订单号',
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    plan_id BIGINT UNSIGNED NOT NULL COMMENT '方案ID',
+    amount DECIMAL(10,2) NOT NULL COMMENT '支付金额',
+    pay_method VARCHAR(20) DEFAULT 'alipay' COMMENT '支付方式',
+    pay_status TINYINT DEFAULT 0 COMMENT '0待支付/1已支付/2已取消/3退款中/4已到账/5到账失败',
+    transaction_id VARCHAR(100) COMMENT '第三方交易号',
+    paid_time DATETIME COMMENT '支付时间',
+    expire_time DATETIME COMMENT '过期时间',
+    created_time DATETIME,
+    updated_time DATETIME,
+    is_deleted TINYINT DEFAULT 0,
+    INDEX idx_user_id(user_id),
+    INDEX idx_order_no(order_no),
+    INDEX idx_pay_status(pay_status)
+) COMMENT '支付订单';
+
+-- 用户会员记录表
+CREATE TABLE user_memberships (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    level_code VARCHAR(10) NOT NULL COMMENT '会员等级',
+    start_time DATETIME NOT NULL COMMENT '开始时间',
+    expire_time DATETIME NOT NULL COMMENT '过期时间',
+    grace_end_time DATETIME COMMENT '宽限期结束时间',
+    source_order_id BIGINT UNSIGNED COMMENT '来源订单ID',
+    status TINYINT DEFAULT 1 COMMENT '0=过期 1=有效',
+    created_time DATETIME,
+    updated_time DATETIME,
+    INDEX idx_user_id(user_id),
+    INDEX idx_level_code(level_code),
+    INDEX idx_status(status)
+) COMMENT '用户会员记录';
+
+-- 退款申请表
+CREATE TABLE refund_requests (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    order_id BIGINT UNSIGNED NOT NULL COMMENT '订单ID',
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    reason VARCHAR(500) COMMENT '退款原因',
+    refund_amount DECIMAL(10,2) NOT NULL COMMENT '退款金额',
+    status TINYINT DEFAULT 0 COMMENT '0待审核/1已通过/2已拒绝/3已到账/4到账失败',
+    handled_by BIGINT UNSIGNED COMMENT '处理人ID',
+    handle_remark VARCHAR(500) COMMENT '处理备注',
+    handled_time DATETIME COMMENT '处理时间',
+    created_time DATETIME,
+    updated_time DATETIME,
+    INDEX idx_order_id(order_id),
+    INDEX idx_user_id(user_id),
+    INDEX idx_status(status)
+) COMMENT '退款申请';
+
+-- 每日咨询配额表
+CREATE TABLE consult_daily_quota (
+    id BIGINT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    user_id BIGINT UNSIGNED NOT NULL COMMENT '用户ID',
+    quota_date DATE NOT NULL COMMENT '配额日期',
+    used_count INT DEFAULT 0 COMMENT '已使用次数',
+    max_count INT NOT NULL COMMENT '最大次数',
+    created_time DATETIME,
+    updated_time DATETIME,
+    UNIQUE KEY uk_user_date(user_id, quota_date)
+) COMMENT '每日咨询配额';
+```
+
+### 5.5 管理后台模块
 
 ```sql
 -- 系统配置表
@@ -432,12 +545,34 @@ CREATE TABLE role_permissions (
 | 方法 | 路径 | 说明 |
 |------|------|------|
 | GET | /api/v1/payment/plans | 获取订阅方案列表 |
+| GET | /api/v1/payment/orders | 获取我的订单列表 |
 | POST | /api/v1/payment/order | 创建支付订单 |
 | GET | /api/v1/payment/order/{orderNo} | 查询订单状态 |
 | POST | /api/v1/payment/order/{orderNo}/cancel | 取消订单 |
 | POST | /api/v1/payment/callback/alipay | 支付宝支付回调（无需登录） |
 | POST | /api/v1/payment/refund/apply | 申请退款 |
 | GET | /api/v1/payment/refund/my | 获取我的退款记录 |
+
+**订单状态（payStatus）**：
+
+| 状态码 | 说明 |
+|--------|------|
+| 0 | 待支付 |
+| 1 | 已支付 |
+| 2 | 已取消 |
+| 3 | 退款中 |
+| 4 | 已到账（退款成功） |
+| 5 | 到账失败（退款失败） |
+
+**退款请求状态（RefundRequest.status）**：
+
+| 状态码 | 说明 |
+|--------|------|
+| 0 | 待审核 |
+| 1 | 已通过 |
+| 2 | 已拒绝 |
+| 3 | 已到账 |
+| 4 | 到账失败 |
 
 ### 6.6 咨询（需登录）
 

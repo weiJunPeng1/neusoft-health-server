@@ -13,6 +13,8 @@ public class UserSettingVO {
 
     private Integer notificationEnabled;
 
+    private Integer voiceEnabled;
+
     private BigDecimal voiceSpeed;
 
     private Integer voiceVolume;
@@ -21,7 +23,11 @@ public class UserSettingVO {
 
     private Integer anonymousMode;
 
+    private Integer privacyMode;
+
     private Integer recommendEnabled;
+
+    private Integer autoSyncHealthProfile;
 
     private LocalDateTime updatedTime;
 }

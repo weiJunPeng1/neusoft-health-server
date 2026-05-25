@@ -208,7 +208,11 @@ public enum ResultCode {
     /**
      * 已被邀请，不可重复绑定
      */
-    ALREADY_INVITED(5019, "已被邀请，不可重复绑定");
+    ALREADY_INVITED(5019, "已被邀请，不可重复绑定"),
+    /**
+     * 参数错误
+     */
+    PARAM_ERROR(5020, "参数错误");
 
     /**
      * 状态码

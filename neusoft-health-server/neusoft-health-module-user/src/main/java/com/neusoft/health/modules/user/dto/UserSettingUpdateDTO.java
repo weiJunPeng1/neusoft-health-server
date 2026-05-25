@@ -9,6 +9,8 @@ public class UserSettingUpdateDTO {
 
     private Integer notificationEnabled;
 
+    private Integer voiceEnabled;
+
     private BigDecimal voiceSpeed;
 
     private Integer voiceVolume;
@@ -17,5 +19,9 @@ public class UserSettingUpdateDTO {
 
     private Integer anonymousMode;
 
+    private Integer privacyMode;
+
     private Integer recommendEnabled;
+
+    private Integer autoSyncHealthProfile;
 }

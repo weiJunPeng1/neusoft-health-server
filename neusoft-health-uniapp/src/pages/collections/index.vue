@@ -1,19 +1,18 @@
 <template>
   <view class="page">
-    <NavHeader title="我的收藏" showBack @back="goBack" />
-    <scroll-view scroll-y class="scroll-body">
+    <NavHeader title="我的收藏" showBack fallbackUrl="/pages/profile/index" />
+    <scroll-view scroll-y class="scroll-body" :scroll-top="scrollTop">
       <Card v-for="(item, i) in items" :key="i">
-        <view class="list-row" @click="onItemClick(item, i)">
+        <view class="list-row" @click="onItemClick(item)">
           <view class="list-left">
-            <text class="list-title">{{ item.text }}</text>
-            <text v-if="item.time" class="list-sub">{{ item.time }}</text>
+            <text class="list-title">{{ item.content }}</text>
+            <text v-if="item.createdTime" class="list-sub">{{ item.createdTime }}</text>
           </view>
-          <text v-if="item.count" class="list-extra">{{ item.count }}</text>
           <text class="list-arrow">›</text>
         </view>
       </Card>
       <view v-if="items.length === 0" class="empty-hint">
-        <text class="empty-icon">❤️</text>
+        <SvgIcon name="heart" :size="48" color="#BBBFC4" />
         <text class="empty-text">暂无内容</text>
       </view>
       <view style="height: 40px;" />
@@ -24,15 +23,34 @@
 <script setup lang="ts">
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useScrollToTop } from '@/composables/useScrollToTop'
+import { userApi } from '@/api/user'
+import { useUserStore } from '@/stores/user'
+import type { UserFavorite } from '@/types'
 
-const items = ref([{'text': '感冒发热38度怎么处理', 'time': '05-21', 'count': ''}, {'text': '头痛的常见原因分析', 'time': '05-20', 'count': ''}, {'text': '高血压饮食注意事项', 'time': '05-18', 'count': ''}])
+const { scrollTop } = useScrollToTop()
+
+const items = ref<UserFavorite[]>([])
 
 const goBack = () => uni.navigateBack()
 
-const onItemClick = (item: any, index: number) => {
-  uni.showToast({ title: `查看: ${item.text}`, icon: 'none' })
+const onItemClick = (item: UserFavorite) => {
+  uni.navigateTo({ url: `/pages/consult/index?sessionId=${item.sessionId}` })
 }
+
+onMounted(async () => {
+  if (!useUserStore.isLoggedIn) {
+    uni.navigateTo({ url: '/pages/login/index' })
+    return
+  }
+  try {
+    const res = await userApi.getFavorites()
+    items.value = res.data || []
+  } catch (err) {
+    console.error('获取收藏列表失败', err)
+  }
+})
 </script>
 
 <style scoped>

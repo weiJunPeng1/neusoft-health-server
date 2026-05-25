@@ -3,16 +3,17 @@ package com.neusoft.health.modules.member.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.neusoft.health.common.exception.BusinessException;
+import com.neusoft.health.common.mapper.UserMapper;
 import com.neusoft.health.common.result.ResultCode;
 import com.neusoft.health.modules.member.dto.AdminGrantDTO;
 import com.neusoft.health.modules.member.entity.MemberLevel;
 import com.neusoft.health.modules.member.entity.UserMembership;
+import com.neusoft.health.modules.member.mapper.ConsultDailyQuotaMapper;
 import com.neusoft.health.modules.member.mapper.MemberLevelMapper;
 import com.neusoft.health.modules.member.mapper.UserMembershipMapper;
 import com.neusoft.health.modules.member.service.MemberService;
 import com.neusoft.health.modules.member.vo.MemberStatusVO;
-import com.neusoft.health.modules.system.entity.User;
-import com.neusoft.health.modules.system.mapper.UserMapper;
+import com.neusoft.health.common.entity.User;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -29,6 +30,7 @@ public class MemberServiceImpl extends ServiceImpl<UserMembershipMapper, UserMem
 
     private final UserMapper userMapper;
     private final MemberLevelMapper memberLevelMapper;
+    private final ConsultDailyQuotaMapper consultDailyQuotaMapper;
 
     private static final int GRACE_HOURS = 24;
 
@@ -72,7 +74,21 @@ public class MemberServiceImpl extends ServiceImpl<UserMembershipMapper, UserMem
             vo.setDeepAnalysis(isDeepAnalysis(level));
             vo.setExportEnabled(isExportEnabled(level));
         }
+        
+        vo.setTodayUsed(getTodayConsultCount(userId));
+        
         return vo;
+    }
+    
+    private Integer getTodayConsultCount(Long userId) {
+        try {
+            java.time.LocalDate today = java.time.LocalDate.now();
+            Integer count = consultDailyQuotaMapper.getTodayCount(userId, today);
+            return count != null ? count : 0;
+        } catch (Exception e) {
+            log.error("获取今日咨询次数失败", e);
+            return 0;
+        }
     }
 
     private String getDefaultLevelName(String level) {

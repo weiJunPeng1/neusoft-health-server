@@ -1,8 +1,8 @@
-package com.neusoft.health.modules.system.mapper;
+package com.neusoft.health.common.mapper;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
-import com.neusoft.health.modules.system.entity.User;
+import com.neusoft.health.common.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.Optional;

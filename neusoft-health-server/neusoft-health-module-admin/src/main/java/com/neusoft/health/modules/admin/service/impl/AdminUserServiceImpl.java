@@ -2,8 +2,8 @@ package com.neusoft.health.modules.admin.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.neusoft.health.modules.admin.service.AdminUserService;
-import com.neusoft.health.modules.system.entity.User;
-import com.neusoft.health.modules.system.mapper.UserMapper;
+import com.neusoft.health.common.entity.User;
+import com.neusoft.health.common.mapper.UserMapper;
 import com.neusoft.health.modules.system.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;

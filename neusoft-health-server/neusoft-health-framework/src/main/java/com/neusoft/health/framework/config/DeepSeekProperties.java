@@ -42,4 +42,20 @@ public class DeepSeekProperties {
      * 温度参数，控制生成文本的随机性
      */
     private Double temperature;
+
+    /**
+     * 是否启用AI服务
+     * 默认为true，设置为false可禁用所有AI调用，用于紧急情况或维护
+     */
+    private Boolean enabled = true;
+
+    /**
+     * 每分钟最大调用次数限制
+     */
+    private Integer maxCallsPerMinute = 100;
+
+    /**
+     * 每日最大调用次数限制
+     */
+    private Integer maxCallsPerDay = 10000;
 }

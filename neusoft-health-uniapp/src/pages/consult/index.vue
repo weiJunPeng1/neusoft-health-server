@@ -1,10 +1,16 @@
 <template>
   <view class="page">
-    <NavHeader title="健康咨询" showBack @back="goBack" />
+    <NavHeader title="智能问诊" showBack @back="goBack" handleBackBySelf="true">
+      <template #right>
+        <view class="history-btn" @click="goToHistory">
+          <SvgIcon name="scroll" :size="20" color="#4A90D9" />
+        </view>
+      </template>
+    </NavHeader>
 
     <!-- 紧急横幅 -->
     <view class="emergency-banner" @click="showEmergency">
-      <view class="emer-icon">⚠️</view>
+      <view class="emer-icon"><SvgIcon name="warning" :size="20" color="#FFFFFF" /></view>
       <view class="emer-text">
         <text class="emer-title">紧急情况？请立即拨打120</text>
       </view>
@@ -14,11 +20,20 @@
     <!-- 消息列表 -->
     <scroll-view scroll-y class="msg-area" :scroll-top="scrollTop">
       <view v-for="(msg, i) in messages" :key="i" :class="['msg-row', msg.role === 'user' ? 'msg-user' : 'msg-ai']">
-        <view v-if="msg.role === 'ai'" class="msg-avatar">🤖</view>
+        <view v-if="msg.role === 'assistant'" class="msg-avatar"><SvgIcon name="robot" :size="20" color="#4A90D9" /></view>
         <view :class="['msg-bubble', msg.role === 'user' ? 'bubble-user' : 'bubble-ai']">
-          <text class="msg-text">{{ msg.content }}</text>
+          <view class="msg-text" v-html="formatMessage(msg.content)"></view>
+          <view v-if="msg.role === 'assistant' && msg.id" class="msg-actions">
+            <view 
+              class="msg-action-btn" 
+              :class="{ 'favorited': favoritedIds.includes(msg.id!) }"
+              @click="toggleFavorite(msg.id!)"
+            >
+              <SvgIcon :name="favoritedIds.includes(msg.id!) ? 'heart' : 'heart-outline'" :size="16" :color="favoritedIds.includes(msg.id!) ? '#FF4757' : '#BBBFC4'" />
+            </view>
+          </view>
         </view>
-        <view v-if="msg.role === 'user'" class="msg-avatar">👤</view>
+        <view v-if="msg.role === 'user'" class="msg-avatar"><SvgIcon name="user" :size="20" color="#4A90D9" /></view>
       </view>
 
       <!-- 快捷问题（仅初始状态） -->
@@ -48,7 +63,7 @@
     <!-- 紧急弹窗 -->
     <Modal :visible="showEmerModal" @close="showEmerModal = false">
       <view class="modal-inner">
-        <view class="emer-modal-icon">🚨</view>
+        <view class="emer-modal-icon"><SvgIcon name="alert" :size="48" color="#FF4757" /></view>
         <text class="emer-modal-title">紧急医疗情况</text>
         <text class="emer-modal-body">如果您正在经历胸痛、呼吸困难、严重创伤等紧急情况，请立即拨打120急救电话。AI健康助手不能替代紧急医疗救助。</text>
         <button class="btn-primary" @click="showEmerModal = false">我知道了</button>
@@ -60,15 +75,37 @@
 <script setup lang="ts">
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Modal from '@/components/Modal/Modal.vue'
-import { ref, reactive, nextTick } from 'vue'
+import { ref, reactive, nextTick, onMounted } from 'vue'
+import { onLoad, onShow } from '@dcloudio/uni-app'
+import { consultApi } from '@/api/consult'
+import { memberApi } from '@/api/member'
+import { userApi } from '@/api/user'
+import { useUserStore } from '@/stores/user'
+import type { ConsultMessage, MemberStatus } from '@/types'
 
 const inputText = ref('')
 const scrollTop = ref(0)
 const showEmerModal = ref(false)
+const currentSessionId = ref<number | null>(null)
 
-const messages = reactive<Array<{ role: string; content: string }>>([
-  { role: 'ai', content: '您好！我是您的AI健康助手，很高兴为您服务。请问有什么健康问题需要咨询吗？' },
-])
+const messages = reactive<ConsultMessage[]>([])
+const favoritedIds = ref<number[]>([])
+const healthProfile = ref<any>(null)
+const autoSyncHealthProfile = ref(true)
+
+const memberStatus = reactive<MemberStatus>({
+  levelCode: '',
+  levelName: '',
+  dailyQuota: 3,
+  todayUsed: 0,
+  contextRounds: 0,
+  autoSync: false,
+  deepAnalysis: false,
+  exportEnabled: false,
+  expireTime: '',
+  remainingDays: 0,
+  inGracePeriod: false
+})
 
 const quickQuestions = [
   '感冒发烧怎么办',
@@ -78,24 +115,83 @@ const quickQuestions = [
   '皮肤过敏处理',
 ]
 
-const sendMessage = (text: string) => {
+const formatMessage = (content: string): string => {
+  if (!content) return ''
+  return content
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\n/g, '<br/>')
+}
+
+const loadSessionMessages = async (sessionId: number) => {
+  try {
+    const res = await consultApi.listMessages(sessionId)
+    messages.splice(0, messages.length)
+    messages.push(...(res.data || []))
+    nextTick(() => scrollToBottom())
+  } catch (err) {
+    console.error('加载会话消息失败', err)
+  }
+}
+
+const checkQuota = async (): Promise<boolean> => {
+  try {
+    const res = await memberApi.getStatus()
+    Object.assign(memberStatus, res.data)
+    
+    if (!memberStatus.levelCode || memberStatus.levelCode === 'L0') {
+      if (memberStatus.todayUsed >= memberStatus.dailyQuota) {
+        uni.showModal({
+          title: '额度用完',
+          content: `今日免费咨询额度已用完（今日已使用${memberStatus.todayUsed}次），开通会员享受更多咨询次数。`,
+          confirmText: '去开通',
+          cancelText: '知道了',
+          success: (res) => {
+            if (res.confirm) {
+              uni.switchTab({ url: '/pages/member/index' })
+            }
+          }
+        })
+        return false
+      }
+    }
+    return true
+  } catch (err) {
+    console.error('检查会员状态失败', err)
+    return true
+  }
+}
+
+const sendMessage = async (text: string) => {
   const msg = text.trim()
   if (!msg) return
-  messages.push({ role: 'user', content: msg })
+
+  const canSend = await checkQuota()
+  if (!canSend) return
+
+  if (!currentSessionId.value) {
+    try {
+      const res = await consultApi.createSession(msg)
+      currentSessionId.value = res.data.id
+    } catch (err) {
+      uni.showToast({ title: '创建会话失败', icon: 'none' })
+      return
+    }
+  }
+
+  messages.push({ id: 0, sessionId: currentSessionId.value, role: 'user', content: msg, createdTime: new Date().toISOString() })
   inputText.value = ''
-
-  // 模拟AI回复
-  setTimeout(() => {
-    const replies = [
-      '感谢您的咨询。根据您描述的情况，建议您注意休息，多喝水，观察症状变化。如果持续不适，请及时就医。',
-      '这是一个常见健康问题。建议您保持良好的生活习惯：规律作息、均衡饮食、适量运动。',
-      '我理解您的担忧。请放心，我会为您提供基于循证医学的建议。注意：AI建议仅供参考，不能替代专业医生诊断。',
-    ]
-    messages.push({ role: 'ai', content: replies[Math.floor(Math.random() * replies.length)] })
-    scrollToBottom()
-  }, 800)
-
   nextTick(() => scrollToBottom())
+
+  try {
+    const profileData = autoSyncHealthProfile.value ? healthProfile.value : undefined
+    const res = await consultApi.sendMessage(currentSessionId.value, msg, profileData)
+    messages.push(res.data)
+    memberStatus.todayUsed++
+    scrollToBottom()
+  } catch (err: any) {
+    messages.push({ id: 0, sessionId: currentSessionId.value, role: 'assistant', content: err.message || '发送失败，请重试', createdTime: new Date().toISOString() })
+    scrollToBottom()
+  }
 }
 
 const scrollToBottom = () => {
@@ -107,8 +203,91 @@ const showEmergency = () => {
 }
 
 const goBack = () => {
-  uni.navigateBack()
+  const pages = getCurrentPages()
+  if (pages.length <= 1) {
+    uni.navigateTo({ url: '/pages/consult-history/index' })
+  } else {
+    uni.navigateBack()
+  }
 }
+
+const goToHistory = () => {
+  uni.navigateTo({ url: '/pages/consult-history/index' })
+}
+
+const toggleFavorite = async (messageId: number) => {
+  try {
+    const isFavorited = await userApi.toggleFavorite(messageId)
+    const index = favoritedIds.value.indexOf(messageId)
+    if (isFavorited) {
+      if (index === -1) favoritedIds.value.push(messageId)
+      uni.showToast({ title: '已收藏', icon: 'success' })
+    } else {
+      if (index !== -1) favoritedIds.value.splice(index, 1)
+      uni.showToast({ title: '已取消收藏', icon: 'none' })
+    }
+  } catch (err: any) {
+    uni.showToast({ title: err.message || '操作失败', icon: 'none' })
+  }
+}
+
+const loadFavoritedIds = async () => {
+  try {
+    const res = await userApi.getFavorites()
+    favoritedIds.value = (res.data || []).map((f: any) => f.messageId).filter((id: number) => id > 0)
+  } catch (err) {
+    console.error('加载收藏列表失败', err)
+  }
+}
+
+const loadHealthProfile = async () => {
+  try {
+    const res = await userApi.getHealthProfile()
+    healthProfile.value = res.data || null
+  } catch (err) {
+    console.error('加载健康档案失败', err)
+  }
+}
+
+const loadSettings = async () => {
+  try {
+    const res = await userApi.getSettings()
+    if (res.data) {
+      autoSyncHealthProfile.value = res.data.autoSyncHealthProfile ?? true
+    }
+  } catch (err) {
+    console.error('加载设置失败', err)
+  }
+}
+
+onLoad((options: any) => {
+  if (options?.sessionId) {
+    currentSessionId.value = parseInt(options.sessionId)
+  }
+})
+
+onMounted(async () => {
+  if (!useUserStore.isLoggedIn) {
+    uni.navigateTo({ url: '/pages/login/index' })
+    return
+  }
+  
+  await Promise.all([
+    loadFavoritedIds(),
+    loadHealthProfile(),
+    loadSettings()
+  ])
+  
+  if (currentSessionId.value) {
+    await loadSessionMessages(currentSessionId.value)
+  } else {
+    messages.push({ id: 0, sessionId: 0, role: 'assistant', content: '您好！我是智能问诊助手，请问您有什么症状或健康问题需要咨询？我将为您提供专业的医疗建议。', createdTime: new Date().toISOString() })
+  }
+})
+
+onShow(() => {
+  scrollTop.value = 0
+})
 </script>
 
 <style scoped>
@@ -138,7 +317,7 @@ const goBack = () => {
   margin-bottom: 18px;
   align-items: flex-start;
 }
-.msg-user { flex-direction: row-reverse; }
+.msg-user { justify-content: flex-end; }
 .msg-avatar {
   width: 40px;
   height: 40px;
@@ -160,6 +339,23 @@ const goBack = () => {
 .bubble-user { background: #4A90D9; border-radius: 16px 0 16px 16px; }
 .msg-text { font-size: 14px; color: #1F2329; }
 .bubble-user .msg-text { color: #FFFFFF; }
+
+.msg-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+.msg-action-btn {
+  padding: 4px 8px;
+  border-radius: 8px;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+.msg-action-btn:active,
+.msg-action-btn:hover {
+  opacity: 1;
+}
+.action-icon { font-size: 16px; }
 
 .quick-qs { margin-top: 16px; }
 .quick-label { font-size: 13px; color: #8F959E; margin-bottom: 10px; display: block; }
@@ -215,4 +411,15 @@ const goBack = () => {
   font-size: 15px;
   font-weight: 500;
 }
+
+.history-btn {
+  width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(74, 144, 217, 0.1);
+  border-radius: 50%;
+}
+.history-icon { font-size: 20px; }
 </style>

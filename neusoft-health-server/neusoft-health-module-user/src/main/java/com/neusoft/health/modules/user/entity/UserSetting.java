@@ -30,6 +30,9 @@ public class UserSetting {
     /** 通知开关：0=关闭，1=开启 */
     private Integer notificationEnabled;
 
+    /** 语音播报开关：0=关闭，1=开启 */
+    private Integer voiceEnabled;
+
     /** 语音播报语速（默认1.00，范围0.50-2.00） */
     private BigDecimal voiceSpeed;
 
@@ -42,8 +45,14 @@ public class UserSetting {
     /** 匿名咨询模式：0=关闭，1=开启 */
     private Integer anonymousMode;
 
+    /** 隐私模式（同anonymousMode） */
+    private Integer privacyMode;
+
     /** 是否允许推荐健康科普：0=否，1=是 */
     private Integer recommendEnabled;
+
+    /** 健康档案自动同步：0=关闭，1=开启 */
+    private Integer autoSyncHealthProfile;
 
     /** 创建时间（自动填充） */
     @TableField(fill = FieldFill.INSERT)

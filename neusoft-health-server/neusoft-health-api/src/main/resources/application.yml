@@ -58,11 +58,19 @@ sms:
   Token: dca9d3db892e4e7bab8ca264b117d812
 
 deepseek:
-  api-key: ${DEEPSEEK_API_KEY:sk-2075c09dfeb74e52804eb0b2c28befff}
+  api-key: ${DEEPSEEK_API_KEY}
   api-url: ${DEEPSEEK_API_URL:https://api.deepseek.com}
   model: ${DEEPSEEK_MODEL:deepseek-chat}
   max-tokens: 2048
   temperature: 0.7
+
+alipay:
+  app-id: ${ALIPAY_APP_ID:2088842396964540}
+  private-key: ${ALIPAY_PRIVATE_KEY:}
+  alipay-public-key: ${ALIPAY_PUBLIC_KEY:}
+  gateway: ${ALIPAY_GATEWAY:https://openapi.alipaydev.com/gateway.do}
+  notify-url: ${ALIPAY_NOTIFY_URL:http://localhost:8080/api/v1/payment/notify/alipay}
+  return-url: ${ALIPAY_RETURN_URL:http://localhost:8080/pages/payment/result}
 
 logging:
   level:

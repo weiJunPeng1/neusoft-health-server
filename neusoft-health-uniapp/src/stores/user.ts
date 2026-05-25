@@ -7,7 +7,7 @@ export const useUserStore = reactive({
   memberStatus: null as MemberStatus | null,
 
   get isLoggedIn() {
-    return !!this.token
+    return !!uni.getStorageSync('token')
   },
 
   get memberLevel() {
@@ -24,7 +24,7 @@ export const useUserStore = reactive({
     this.user = null
     this.memberStatus = null
     uni.removeStorageSync('token')
-    uni.reLaunch({ url: '/pages/index/index' })
+    uni.reLaunch({ url: '/pages/login/index' })
   },
 
   setUser(user: User) {

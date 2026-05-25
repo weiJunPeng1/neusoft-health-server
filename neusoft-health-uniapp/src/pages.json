@@ -119,6 +119,12 @@
       "style": {
         "navigationStyle": "custom"
       }
+    },
+    {
+      "path": "pages/forgot-password/index",
+      "style": {
+        "navigationStyle": "custom"
+      }
     }
   ],
   "globalStyle": {
@@ -135,27 +141,19 @@
     "list": [
       {
         "pagePath": "pages/index/index",
-        "text": "首页",
-        "iconPath": "static/tab/home.png",
-        "selectedIconPath": "static/tab/home-active.png"
+        "text": "首页"
       },
       {
         "pagePath": "pages/services/index",
-        "text": "服务",
-        "iconPath": "static/tab/services.png",
-        "selectedIconPath": "static/tab/services-active.png"
+        "text": "服务"
       },
       {
         "pagePath": "pages/member/index",
-        "text": "会员",
-        "iconPath": "static/tab/member.png",
-        "selectedIconPath": "static/tab/member-active.png"
+        "text": "会员"
       },
       {
         "pagePath": "pages/profile/index",
-        "text": "我的",
-        "iconPath": "static/tab/profile.png",
-        "selectedIconPath": "static/tab/profile-active.png"
+        "text": "我的"
       }
     ]
   },
@@ -166,7 +164,8 @@
       "^TabBar": "@/components/TabBar/TabBar.vue",
       "^Card": "@/components/Card/Card.vue",
       "^Toast": "@/components/Toast/Toast.vue",
-      "^Modal": "@/components/Modal/Modal.vue"
+      "^Modal": "@/components/Modal/Modal.vue",
+      "^SvgIcon": "@/components/Icons/SvgIcon.vue"
     }
   }
 }

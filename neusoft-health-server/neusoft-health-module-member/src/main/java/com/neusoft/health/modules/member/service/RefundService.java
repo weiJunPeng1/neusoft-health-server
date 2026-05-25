@@ -10,4 +10,5 @@ public interface RefundService {
     void rejectRefund(Long refundId, Long adminId, String remark);
     List<RefundRequestVO> getRefundList();
     List<RefundRequestVO> getUserRefundList(Long userId);
+    void handleDepositBackCallback(String orderNo, String refundRequestNo, String depositBackStatus);
 }

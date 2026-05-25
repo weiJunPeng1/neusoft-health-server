@@ -13,8 +13,8 @@ import com.neusoft.health.modules.member.service.MemberService;
 import com.neusoft.health.modules.member.service.PaymentService;
 import com.neusoft.health.modules.member.vo.PaymentOrderVO;
 import com.neusoft.health.modules.member.vo.SubscriptionPlanVO;
-import com.neusoft.health.modules.system.entity.User;
-import com.neusoft.health.modules.system.mapper.UserMapper;
+import com.neusoft.health.common.entity.User;
+import com.neusoft.health.common.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -65,7 +65,14 @@ public class PaymentServiceImpl implements PaymentService {
     @Override
     @Transactional
     public PaymentOrderVO createOrder(Long userId, OrderCreateDTO dto) {
-        SubscriptionPlan plan = planMapper.selectById(dto.getPlanId());
+        SubscriptionPlan plan;
+        if (dto.getPlanId() != null) {
+            plan = planMapper.selectById(dto.getPlanId());
+        } else if (dto.getPlanCode() != null) {
+            plan = planMapper.selectOne(new LambdaQueryWrapper<SubscriptionPlan>().eq(SubscriptionPlan::getPlanCode, dto.getPlanCode()));
+        } else {
+            throw new BusinessException(ResultCode.PARAM_ERROR);
+        }
         if (plan == null || plan.getStatus() == 0) {
             throw new BusinessException(ResultCode.PLAN_NOT_FOUND);
         }
@@ -133,11 +140,29 @@ public class PaymentServiceImpl implements PaymentService {
             case 0: vo.setPayStatusDesc("待支付"); break;
             case 1: vo.setPayStatusDesc("已支付"); break;
             case 2: vo.setPayStatusDesc("已取消"); break;
-            case 3: vo.setPayStatusDesc("已退款"); break;
+            case 3: vo.setPayStatusDesc("退款中"); break;
+            case 4: vo.setPayStatusDesc("已到账"); break;
+            case 5: vo.setPayStatusDesc("到账失败"); break;
         }
         vo.setPaidTime(order.getPaidTime());
         vo.setExpireTime(order.getExpireTime());
         vo.setCreatedTime(order.getCreatedTime());
         return vo;
+    }
+
+    @Override
+    public List<PaymentOrderVO> listOrders(Long userId) {
+        List<PaymentOrder> orders = orderMapper.selectList(
+                new LambdaQueryWrapper<PaymentOrder>().eq(PaymentOrder::getUserId, userId).orderByDesc(PaymentOrder::getCreatedTime));
+        return orders.stream().map(order -> {
+            SubscriptionPlan plan = planMapper.selectById(order.getPlanId());
+            return toVO(order, plan != null ? plan.getPlanName() : "");
+        }).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void simulatePayment(String orderNo) {
+        handleAlipayCallback(orderNo, "SIM_" + System.currentTimeMillis());
     }
 }

@@ -74,7 +74,9 @@ public class AdminPaymentController {
             case 0: vo.setPayStatusDesc("待支付"); break;
             case 1: vo.setPayStatusDesc("已支付"); break;
             case 2: vo.setPayStatusDesc("已取消"); break;
-            case 3: vo.setPayStatusDesc("已退款"); break;
+            case 3: vo.setPayStatusDesc("退款中"); break;
+            case 4: vo.setPayStatusDesc("已到账"); break;
+            case 5: vo.setPayStatusDesc("到账失败"); break;
         }
         vo.setPaidTime(order.getPaidTime());
         vo.setExpireTime(order.getExpireTime());

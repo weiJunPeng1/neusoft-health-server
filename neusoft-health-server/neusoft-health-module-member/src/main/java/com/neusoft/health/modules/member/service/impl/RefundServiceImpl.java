@@ -16,8 +16,8 @@ import com.neusoft.health.modules.member.mapper.UserMembershipMapper;
 import com.neusoft.health.modules.member.service.MemberService;
 import com.neusoft.health.modules.member.service.RefundService;
 import com.neusoft.health.modules.member.vo.RefundRequestVO;
-import com.neusoft.health.modules.system.entity.User;
-import com.neusoft.health.modules.system.mapper.UserMapper;
+import com.neusoft.health.common.entity.User;
+import com.neusoft.health.common.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -45,7 +45,9 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
     @Override
     @Transactional
     public void applyRefund(Long userId, RefundApplyDTO dto) {
-        PaymentOrder order = paymentOrderMapper.selectById(dto.getOrderId());
+        PaymentOrder order = paymentOrderMapper.selectOne(
+                new LambdaQueryWrapper<PaymentOrder>()
+                        .eq(PaymentOrder::getOrderNo, dto.getOrderNo()));
         if (order == null) {
             throw new BusinessException(ResultCode.ORDER_NOT_FOUND);
         }
@@ -77,6 +79,10 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
         refund.setRefundAmount(refundAmount);
         refund.setStatus(0);
         refundRequestMapper.insert(refund);
+
+        order.setPayStatus(3);
+        paymentOrderMapper.updateById(order);
+
         log.info("Refund request created: userId={}, orderId={}, amount={}", userId, order.getId(), refundAmount);
     }
 
@@ -114,7 +120,7 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
             userMembershipMapper.updateById(latest);
         }
 
-        order.setPayStatus(3);
+        order.setPayStatus(4);
         paymentOrderMapper.updateById(order);
 
         refund.setStatus(1);
@@ -141,6 +147,13 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
         refund.setHandleRemark(remark);
         refund.setHandledTime(LocalDateTime.now());
         refundRequestMapper.updateById(refund);
+
+        PaymentOrder order = paymentOrderMapper.selectById(refund.getOrderId());
+        if (order != null) {
+            order.setPayStatus(1);
+            paymentOrderMapper.updateById(order);
+        }
+
         log.info("Refund rejected: refundId={}, adminId={}", refundId, adminId);
     }
 
@@ -157,6 +170,42 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
                 .eq(RefundRequest::getUserId, userId)
                 .orderByDesc(RefundRequest::getCreatedTime));
         return refunds.stream().map(this::toVO).collect(Collectors.toList());
+    }
+
+    @Override
+    @Transactional
+    public void handleDepositBackCallback(String orderNo, String refundRequestNo, String depositBackStatus) {
+        PaymentOrder order = paymentOrderMapper.selectOne(
+                new LambdaQueryWrapper<PaymentOrder>().eq(PaymentOrder::getOrderNo, orderNo));
+        
+        if (order == null) {
+            log.warn("Deposit back callback: order not found, orderNo={}", orderNo);
+            return;
+        }
+
+        RefundRequest refund = refundRequestMapper.selectOne(
+                new LambdaQueryWrapper<RefundRequest>()
+                        .eq(RefundRequest::getOrderId, order.getId())
+                        .eq(RefundRequest::getStatus, 1));
+
+        if (refund == null) {
+            log.warn("Deposit back callback: refund not found, orderNo={}, refundRequestNo={}", orderNo, refundRequestNo);
+            return;
+        }
+
+        if ("SUCCESS".equals(depositBackStatus)) {
+            refund.setStatus(3);
+            refund.setHandleRemark("退款已到账（银行卡）");
+            refund.setHandledTime(LocalDateTime.now());
+            refundRequestMapper.updateById(refund);
+            log.info("Deposit back success: orderNo={}, refundId={}", orderNo, refund.getId());
+        } else if ("FAIL".equals(depositBackStatus)) {
+            refund.setStatus(4);
+            refund.setHandleRemark("退款到银行卡失败");
+            refund.setHandledTime(LocalDateTime.now());
+            refundRequestMapper.updateById(refund);
+            log.warn("Deposit back failed: orderNo={}, refundId={}", orderNo, refund.getId());
+        }
     }
 
     private BigDecimal calculateRefundAmount(PaymentOrder order) {
@@ -187,6 +236,8 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
             case 0: vo.setStatusDesc("待审核"); break;
             case 1: vo.setStatusDesc("已通过"); break;
             case 2: vo.setStatusDesc("已拒绝"); break;
+            case 3: vo.setStatusDesc("已到账"); break;
+            case 4: vo.setStatusDesc("到账失败"); break;
         }
         vo.setHandledBy(refund.getHandledBy());
         vo.setHandleRemark(refund.getHandleRemark());

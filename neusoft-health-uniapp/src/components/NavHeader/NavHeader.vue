@@ -23,17 +23,39 @@ const props = withDefaults(defineProps<{
   title?: string
   showBack?: boolean
   theme?: 'blue' | 'white'
+  fallbackUrl?: string
+  handleBackBySelf?: boolean
 }>(), {
   title: '',
   showBack: true,
-  theme: 'white'
+  theme: 'white',
+  fallbackUrl: '',
+  handleBackBySelf: false
 })
 
 const emit = defineEmits<{ back: [] }>()
 
+const TAB_PAGES = ['/pages/index/index', '/pages/services/index', '/pages/member/index', '/pages/profile/index']
+
 const handleBack = () => {
   emit('back')
-  uni.navigateBack({ delta: 1 })
+  
+  if (props.handleBackBySelf) {
+    return
+  }
+  
+  const pages = getCurrentPages()
+  if (pages.length <= 1) {
+    if (props.fallbackUrl) {
+      if (TAB_PAGES.includes(props.fallbackUrl)) {
+        uni.switchTab({ url: props.fallbackUrl })
+      } else {
+        uni.redirectTo({ url: props.fallbackUrl })
+      }
+    }
+  } else {
+    uni.navigateBack()
+  }
 }
 </script>
 

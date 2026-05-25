@@ -36,6 +36,10 @@
             <version>2.2.46</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.neusoft</groupId>
+            <artifactId>neusoft-health-module-member</artifactId>
+        </dependency>
     </dependencies>
     <build>
         <plugins>

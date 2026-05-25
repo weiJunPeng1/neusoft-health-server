@@ -1,4 +1,5 @@
 import type { ApiResponse } from '@/types'
+import { useUserStore } from '@/stores/user'
 
 const BASE_URL = 'http://localhost:8080'
 
@@ -23,11 +24,11 @@ export const request = <T = any>(options: RequestOptions): Promise<ApiResponse<T
       },
       success: (res: any) => {
         const { statusCode, data } = res
-        if (statusCode === 200 && data.code === 200) {
+        if (statusCode === 200 && data.code === 0) {
           resolve(data)
-        } else if (statusCode === 401) {
+        } else if (statusCode === 401 || data.code === 401) {
           uni.removeStorageSync('token')
-          uni.reLaunch({ url: '/pages/login/index' })
+          useUserStore.logout()
           reject(data)
         } else {
           uni.showToast({ title: data.message || '请求失败', icon: 'none' })

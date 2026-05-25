@@ -6,15 +6,22 @@ import com.neusoft.health.framework.security.SecurityAuthenticationEntryPoint;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpMethod;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
+import org.springframework.security.config.annotation.web.configurers.CorsConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+import org.springframework.web.cors.CorsConfiguration;
+import org.springframework.web.cors.CorsConfigurationSource;
+import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+
+import java.util.Arrays;
 
 /**
  * Spring Security安全配置
@@ -55,6 +62,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
                 .csrf(AbstractHttpConfigurer::disable)
+                .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .exceptionHandling(exception -> exception
                         .authenticationEntryPoint(authenticationEntryPoint)
@@ -69,13 +77,50 @@ public class SecurityConfig {
                                 "/doc.html"
                         ).permitAll()
                         .requestMatchers("/api/v1/faq/**").permitAll()
+                        .requestMatchers("/api/v1/health-search/**").permitAll()
                         .requestMatchers("/api/v1/sensitive-word/**").permitAll()
                         .requestMatchers("/api/v1/payment/callback/**").permitAll()
+                        .requestMatchers("/api/v1/payment/alipay-pay-page/**").permitAll()
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAnyRole("R002", "R003", "R004")
                         .requestMatchers("/api/v1/super-admin/**").hasRole("R002")
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();
+    }
+
+    /**
+     * CORS配置源
+     *
+     * @return CORS配置源
+     */
+    @Bean
+    public CorsConfigurationSource corsConfigurationSource() {
+        CorsConfiguration config = new CorsConfiguration();
+        
+        // 允许所有来源
+        config.addAllowedOriginPattern("*");
+        
+        // 允许携带凭证
+        config.setAllowCredentials(true);
+        
+        // 允许所有请求方法
+        config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS", "PATCH"));
+        
+        // 允许所有请求头
+        config.addAllowedHeader("*");
+        
+        // 暴露的响应头
+        config.addExposedHeader("Authorization");
+        config.addExposedHeader("Content-Disposition");
+        
+        // 预检请求缓存时间
+        config.setMaxAge(3600L);
+
+        UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
+        source.registerCorsConfiguration("/**", config);
+        
+        return source;
     }
 
     /**

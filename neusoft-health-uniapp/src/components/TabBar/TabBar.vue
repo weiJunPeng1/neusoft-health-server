@@ -6,14 +6,22 @@
       :class="['tab-item', current === item.page ? 'tab-item-active' : '']"
       @click="switchTab(item.page)"
     >
-      <text :class="['tab-icon', current === item.page ? 'tab-icon-active' : '']">{{ item.icon }}</text>
+      <component 
+        :is="item.icon" 
+        :size="22"
+        :color="current === item.page ? '#4A90D9' : '#8F959E'"
+      />
       <text :class="['tab-text', current === item.page ? 'tab-text-active' : '']">{{ item.text }}</text>
     </view>
   </view>
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue'
+import { markRaw, onMounted } from 'vue'
+import HomeIcon from '@/components/Icons/HomeIcon.vue'
+import ServicesIcon from '@/components/Icons/ServicesIcon.vue'
+import MemberIcon from '@/components/Icons/MemberIcon.vue'
+import ProfileIcon from '@/components/Icons/ProfileIcon.vue'
 
 const props = withDefaults(defineProps<{
   current?: string
@@ -21,15 +29,19 @@ const props = withDefaults(defineProps<{
   current: 'index'
 })
 
+onMounted(() => {
+  uni.hideTabBar()
+})
+
 const emit = defineEmits<{
   change: [page: string]
 }>()
 
 const tabs = [
-  { page: 'index', text: '首页', icon: '🏠' },
-  { page: 'services', text: '服务', icon: '🧭' },
-  { page: 'member', text: '会员', icon: '👑' },
-  { page: 'profile', text: '我的', icon: '👤' },
+  { page: 'index', text: '首页', icon: markRaw(HomeIcon) },
+  { page: 'services', text: '服务', icon: markRaw(ServicesIcon) },
+  { page: 'member', text: '会员', icon: markRaw(MemberIcon) },
+  { page: 'profile', text: '我的', icon: markRaw(ProfileIcon) },
 ]
 
 const switchTab = (page: string) => {

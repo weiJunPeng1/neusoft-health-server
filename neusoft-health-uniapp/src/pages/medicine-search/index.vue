@@ -1,7 +1,7 @@
 <template>
   <view class="page">
-    <NavHeader title="药品查询" showBack @back="goBack" />
-    <scroll-view scroll-y class="scroll-body">
+    <NavHeader title="药品查询" showBack fallbackUrl="/pages/services/index" />
+    <scroll-view scroll-y class="scroll-body" :scroll-top="scrollTop">
       <Card v-for="(item, i) in items" :key="i">
         <view class="list-row" @click="onItemClick(item, i)">
           <view class="list-left">
@@ -13,7 +13,7 @@
         </view>
       </Card>
       <view v-if="items.length === 0" class="empty-hint">
-        <text class="empty-icon">💊</text>
+        <SvgIcon name="pill" :size="48" color="#BBBFC4" />
         <text class="empty-text">暂无内容</text>
       </view>
       <view style="height: 40px;" />
@@ -25,6 +25,9 @@
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
 import { ref } from 'vue'
+import { useScrollToTop } from '@/composables/useScrollToTop'
+
+const { scrollTop } = useScrollToTop()
 
 const items = ref([{'text': '阿莫西林', 'time': '抗生素类', 'count': ''}, {'text': '布洛芬', 'time': '解热镇痛', 'count': ''}, {'text': '氯雷他定', 'time': '抗过敏', 'count': ''}])
 

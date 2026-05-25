@@ -7,8 +7,8 @@ import com.neusoft.health.modules.consultation.entity.Message;
 import com.neusoft.health.modules.consultation.entity.Session;
 import com.neusoft.health.modules.consultation.mapper.MessageMapper;
 import com.neusoft.health.modules.consultation.mapper.SessionMapper;
-import com.neusoft.health.modules.system.entity.User;
-import com.neusoft.health.modules.system.mapper.UserMapper;
+import com.neusoft.health.common.entity.User;
+import com.neusoft.health.common.mapper.UserMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

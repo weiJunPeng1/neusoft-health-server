@@ -5,7 +5,7 @@ import com.neusoft.health.common.result.PageResult;
 import com.neusoft.health.modules.system.dto.UserPageQueryDTO;
 import com.neusoft.health.modules.system.dto.UserStatusDTO;
 import com.neusoft.health.modules.system.dto.UserUpdateDTO;
-import com.neusoft.health.modules.system.entity.User;
+import com.neusoft.health.common.entity.User;
 import com.neusoft.health.modules.system.vo.UserDetailVO;
 import com.neusoft.health.modules.system.vo.UserVO;
 

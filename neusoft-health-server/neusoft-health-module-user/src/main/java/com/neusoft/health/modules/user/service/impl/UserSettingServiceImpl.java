@@ -11,6 +11,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+
 @Service
 @RequiredArgsConstructor
 public class UserSettingServiceImpl extends ServiceImpl<UserSettingMapper, UserSetting> implements UserSettingService {
@@ -44,13 +46,26 @@ public class UserSettingServiceImpl extends ServiceImpl<UserSettingMapper, UserS
         if (setting == null) {
             setting = new UserSetting();
             setting.setUserId(userId);
+            // 设置默认值
+            setting.setNotificationEnabled(1);
+            setting.setVoiceEnabled(1);
+            setting.setVoiceSpeed(new BigDecimal("1.0"));
+            setting.setVoiceVolume(80);
+            setting.setVoiceTone("default");
+            setting.setAnonymousMode(0);
+            setting.setPrivacyMode(0);
+            setting.setRecommendEnabled(1);
+            setting.setAutoSyncHealthProfile(1);
         }
         if (dto.getNotificationEnabled() != null) setting.setNotificationEnabled(dto.getNotificationEnabled());
+        if (dto.getVoiceEnabled() != null) setting.setVoiceEnabled(dto.getVoiceEnabled());
         if (dto.getVoiceSpeed() != null) setting.setVoiceSpeed(dto.getVoiceSpeed());
         if (dto.getVoiceVolume() != null) setting.setVoiceVolume(dto.getVoiceVolume());
         if (dto.getVoiceTone() != null) setting.setVoiceTone(dto.getVoiceTone());
         if (dto.getAnonymousMode() != null) setting.setAnonymousMode(dto.getAnonymousMode());
+        if (dto.getPrivacyMode() != null) setting.setPrivacyMode(dto.getPrivacyMode());
         if (dto.getRecommendEnabled() != null) setting.setRecommendEnabled(dto.getRecommendEnabled());
+        if (dto.getAutoSyncHealthProfile() != null) setting.setAutoSyncHealthProfile(dto.getAutoSyncHealthProfile());
         saveOrUpdate(setting);
         return getByUserId(userId);
     }

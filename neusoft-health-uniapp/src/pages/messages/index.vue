@@ -1,7 +1,7 @@
 <template>
   <view class="page">
-    <NavHeader title="消息中心" showBack @back="goBack" />
-    <scroll-view scroll-y class="scroll-body">
+    <NavHeader title="消息中心" showBack fallbackUrl="/pages/profile/index" />
+    <scroll-view scroll-y class="scroll-body" :scroll-top="scrollTop">
       <Card v-for="(item, i) in items" :key="i">
         <view class="list-row" @click="onItemClick(item, i)">
           <view class="list-left">
@@ -13,7 +13,7 @@
         </view>
       </Card>
       <view v-if="items.length === 0" class="empty-hint">
-        <text class="empty-icon">💌</text>
+        <SvgIcon name="mail" :size="48" color="#BBBFC4" />
         <text class="empty-text">暂无内容</text>
       </view>
       <view style="height: 40px;" />
@@ -25,6 +25,9 @@
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
 import { ref } from 'vue'
+import { useScrollToTop } from '@/composables/useScrollToTop'
+
+const { scrollTop } = useScrollToTop()
 
 const items = ref([{'text': '系统通知', 'time': '2条未读', 'count': ''}, {'text': '问诊回复', 'time': '1条未读', 'count': ''}, {'text': '优惠活动', 'time': '新会员8折', 'count': ''}])
 

@@ -20,12 +20,22 @@ onHide(() => {
 
 <style>
 /* 全局基础样式 */
+* {
+  box-sizing: border-box;
+}
+
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   font-size: 14px;
   color: #1F2329;
   background: #F5F7FA;
   -webkit-font-smoothing: antialiased;
+  height: 100%;
+  min-height: 100%;
+}
+
+view, text, button, input {
+  box-sizing: border-box;
 }
 
 /* 全局按钮重置 */

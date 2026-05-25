@@ -6,12 +6,12 @@ export const authApi = {
     method: 'POST',
     data: { phone },
   }),
-  loginBySms: (phone: string, code: string) => request<{ token: string }>({
+  loginBySms: (phone: string, code: string) => request<{ accessToken: string; refreshToken: string }>({
     url: '/api/v1/auth/login',
     method: 'POST',
     data: { phone, code },
   }),
-  loginByPassword: (phone: string, password: string) => request<{ token: string }>({
+  loginByPassword: (phone: string, password: string) => request<{ accessToken: string; refreshToken: string }>({
     url: '/api/v1/auth/login/password',
     method: 'POST',
     data: { phone, password },

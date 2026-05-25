@@ -1,12 +1,12 @@
 package com.neusoft.health.modules.member.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.neusoft.health.common.mapper.UserMapper;
 import com.neusoft.health.common.result.R;
 import com.neusoft.health.modules.member.dto.AdminGrantDTO;
 import com.neusoft.health.modules.member.entity.UserMembership;
 import com.neusoft.health.modules.member.service.MemberService;
-import com.neusoft.health.modules.system.entity.User;
-import com.neusoft.health.modules.system.mapper.UserMapper;
+import com.neusoft.health.common.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
