@@ -20,10 +20,6 @@ onHide(() => {
 
 <style>
 /* 全局基础样式 */
-* {
-  box-sizing: border-box;
-}
-
 page {
   font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
   font-size: 14px;

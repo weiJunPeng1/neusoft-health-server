@@ -1,0 +1,680 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>登录 - 东软智慧健康管理系统</title>
+  <link rel="stylesheet" href="https://unpkg.com/element-plus/dist/index.css">
+  <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+  <script src="https://unpkg.com/element-plus/dist/index.full.js"></script>
+  <script src="https://unpkg.com/@element-plus/icons-vue"></script>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .login-container {
+      width: 100%;
+      max-width: 1200px;
+      height: 600px;
+      background: white;
+      border-radius: 20px;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      display: flex;
+      overflow: hidden;
+      margin: 20px;
+    }
+
+    .login-left {
+      flex: 1;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 60px 40px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      color: white;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .login-left::before {
+      content: '';
+      position: absolute;
+      top: -50%;
+      right: -50%;
+      width: 100%;
+      height: 100%;
+      background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%);
+    }
+
+    .login-left::after {
+      content: '';
+      position: absolute;
+      bottom: -30%;
+      left: -30%;
+      width: 80%;
+      height: 80%;
+      background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
+    }
+
+    .logo {
+      font-size: 48px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .subtitle {
+      font-size: 18px;
+      opacity: 0.9;
+      line-height: 1.6;
+      position: relative;
+      z-index: 1;
+    }
+
+    .features {
+      margin-top: 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .feature-item {
+      display: flex;
+      align-items: center;
+      margin-bottom: 15px;
+      font-size: 14px;
+    }
+
+    .feature-icon {
+      width: 24px;
+      height: 24px;
+      margin-right: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 50%;
+    }
+
+    .login-right {
+      width: 500px;
+      padding: 60px 50px;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .login-header {
+      margin-bottom: 40px;
+    }
+
+    .login-title {
+      font-size: 28px;
+      font-weight: 600;
+      color: #333;
+      margin-bottom: 10px;
+    }
+
+    .login-desc {
+      font-size: 14px;
+      color: #999;
+    }
+
+    .login-tabs {
+      margin-bottom: 30px;
+    }
+
+    .login-form {
+      margin-bottom: 20px;
+    }
+
+    .form-item {
+      margin-bottom: 24px;
+    }
+
+    .form-label {
+      display: block;
+      font-size: 14px;
+      color: #333;
+      margin-bottom: 8px;
+      font-weight: 500;
+    }
+
+    .form-input {
+      width: 100%;
+      height: 48px;
+      padding: 0 16px;
+      border: 1px solid #e0e0e0;
+      border-radius: 8px;
+      font-size: 14px;
+      transition: all 0.3s;
+      outline: none;
+    }
+
+    .form-input:focus {
+      border-color: #667eea;
+      box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+    }
+
+    .form-input::placeholder {
+      color: #ccc;
+    }
+
+    .password-wrapper {
+      position: relative;
+    }
+
+    .password-toggle {
+      position: absolute;
+      right: 16px;
+      top: 50%;
+      transform: translateY(-50%);
+      cursor: pointer;
+      color: #999;
+      font-size: 18px;
+    }
+
+    .form-options {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 24px;
+    }
+
+    .remember-me {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+    }
+
+    .remember-checkbox {
+      width: 16px;
+      height: 16px;
+      margin-right: 8px;
+      cursor: pointer;
+    }
+
+    .remember-label {
+      font-size: 14px;
+      color: #666;
+    }
+
+    .forgot-password {
+      font-size: 14px;
+      color: #667eea;
+      text-decoration: none;
+      cursor: pointer;
+    }
+
+    .forgot-password:hover {
+      text-decoration: underline;
+    }
+
+    .login-button {
+      width: 100%;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 16px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .login-button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+    }
+
+    .login-button:active {
+      transform: translateY(0);
+    }
+
+    .login-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .divider {
+      display: flex;
+      align-items: center;
+      margin: 30px 0;
+      color: #ccc;
+      font-size: 14px;
+    }
+
+    .divider::before,
+    .divider::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: #e0e0e0;
+    }
+
+    .divider span {
+      padding: 0 16px;
+    }
+
+    .social-login {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+    }
+
+    .social-button {
+      width: 48px;
+      height: 48px;
+      border: 1px solid #e0e0e0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s;
+      font-size: 20px;
+    }
+
+    .social-button:hover {
+      border-color: #667eea;
+      color: #667eea;
+      transform: translateY(-2px);
+    }
+
+    .register-link {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 14px;
+      color: #666;
+    }
+
+    .register-link a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 600;
+    }
+
+    .register-link a:hover {
+      text-decoration: underline;
+    }
+
+    .copyright {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+      font-size: 12px;
+      color: rgba(255, 255, 255, 0.6);
+    }
+
+    .error-message {
+      color: #f56c6c;
+      font-size: 12px;
+      margin-top: 6px;
+    }
+
+    .code-input-wrapper {
+      display: flex;
+      gap: 12px;
+    }
+
+    .code-input {
+      flex: 1;
+    }
+
+    .send-code-button {
+      width: 120px;
+      height: 48px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+
+    .send-code-button:hover {
+      opacity: 0.9;
+    }
+
+    .send-code-button:disabled {
+      background: #ccc;
+      cursor: not-allowed;
+    }
+
+    @media (max-width: 1024px) {
+      .login-container {
+        flex-direction: column;
+        height: auto;
+      }
+
+      .login-left {
+        padding: 40px;
+      }
+
+      .login-right {
+        width: 100%;
+        padding: 40px;
+      }
+    }
+
+    @media (max-width: 768px) {
+      .login-container {
+        margin: 10px;
+        border-radius: 12px;
+      }
+
+      .login-left {
+        padding: 30px;
+      }
+
+      .login-right {
+        padding: 30px;
+      }
+
+      .logo {
+        font-size: 36px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div id="app">
+    <div class="login-container">
+      <div class="login-left">
+        <div class="logo">🏥</div>
+        <div class="subtitle">东软智慧健康管理系统</div>
+        <div class="features">
+          <div class="feature-item">
+            <div class="feature-icon">👥</div>
+            <span>用户管理 - 高效管理平台用户</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">🔍</div>
+            <span>内容审核 - 智能内容审核系统</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">💎</div>
+            <span>会员管理 - 灵活会员体系</span>
+          </div>
+          <div class="feature-item">
+            <div class="feature-icon">📊</div>
+            <span>数据大屏 - 实时数据可视化</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="login-right">
+        <div class="login-header">
+          <div class="login-title">管理员登录</div>
+          <div class="login-desc">欢迎回来，请登录您的管理员账号</div>
+        </div>
+
+        <el-tabs v-model="loginType" class="login-tabs">
+          <el-tab-pane label="账号密码登录" name="password"></el-tab-pane>
+          <el-tab-pane label="手机验证码登录" name="sms"></el-tab-pane>
+        </el-tabs>
+
+        <div class="login-form">
+          <div v-if="loginType === 'password'">
+            <div class="form-item">
+              <label class="form-label">手机号</label>
+              <input
+                type="text"
+                v-model="passwordForm.phone"
+                class="form-input"
+                placeholder="请输入手机号"
+                maxlength="11"
+              >
+              <div v-if="errors.phone" class="error-message">{{ errors.phone }}</div>
+            </div>
+
+            <div class="form-item">
+              <label class="form-label">密码</label>
+              <div class="password-wrapper">
+                <input
+                  :type="showPassword ? 'text' : 'password'"
+                  v-model="passwordForm.password"
+                  class="form-input"
+                  placeholder="请输入密码"
+                >
+                <span class="password-toggle" @click="showPassword = !showPassword">
+                  {{ showPassword ? '👁️' : '🔒' }}
+                </span>
+              </div>
+              <div v-if="errors.password" class="error-message">{{ errors.password }}</div>
+            </div>
+          </div>
+
+          <div v-else>
+            <div class="form-item">
+              <label class="form-label">手机号</label>
+              <input
+                type="text"
+                v-model="smsForm.phone"
+                class="form-input"
+                placeholder="请输入手机号"
+                maxlength="11"
+              >
+              <div v-if="errors.phone" class="error-message">{{ errors.phone }}</div>
+            </div>
+
+            <div class="form-item">
+              <label class="form-label">验证码</label>
+              <div class="code-input-wrapper">
+                <input
+                  type="text"
+                  v-model="smsForm.code"
+                  class="form-input code-input"
+                  placeholder="请输入验证码"
+                  maxlength="6"
+                >
+                <button
+                  class="send-code-button"
+                  :disabled="countdown > 0"
+                  @click="sendCode"
+                >
+                  {{ countdown > 0 ? countdown + 's' : '获取验证码' }}
+                </button>
+              </div>
+              <div v-if="errors.code" class="error-message">{{ errors.code }}</div>
+            </div>
+          </div>
+
+          <div class="form-options">
+            <label class="remember-me">
+              <input type="checkbox" class="remember-checkbox" v-model="rememberMe">
+              <span class="remember-label">记住我</span>
+            </label>
+            <a class="forgot-password" @click="forgotPassword">忘记密码？</a>
+          </div>
+
+          <button
+            class="login-button"
+            :disabled="loading"
+            @click="handleLogin"
+          >
+            {{ loading ? '登录中...' : '登录' }}
+          </button>
+        </div>
+
+        <div class="divider">
+          <span>其他登录方式</span>
+        </div>
+
+        <div class="social-login">
+          <div class="social-button" title="微信登录">💬</div>
+          <div class="social-button" title="企业微信">🏢</div>
+          <div class="social-button" title="钉钉">📌</div>
+        </div>
+
+        <div class="register-link">
+          还没有账号？<a @click="goToRegister">立即注册</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="copyright">© 2026 东软集团 版权所有</div>
+  </div>
+
+  <script>
+    const { createApp, ref, reactive } = Vue;
+
+    const app = createApp({
+      setup() {
+        const loginType = ref('password');
+        const showPassword = ref(false);
+        const rememberMe = ref(false);
+        const loading = ref(false);
+        const countdown = ref(0);
+
+        const passwordForm = reactive({
+          phone: '',
+          password: ''
+        });
+
+        const smsForm = reactive({
+          phone: '',
+          code: ''
+        });
+
+        const errors = reactive({
+          phone: '',
+          password: '',
+          code: ''
+        });
+
+        const validatePhone = (phone) => {
+          if (!phone) {
+            return '请输入手机号';
+          }
+          if (!/^1[3-9]\d{9}$/.test(phone)) {
+            return '请输入正确的手机号';
+          }
+          return '';
+        };
+
+        const validatePassword = (password) => {
+          if (!password) {
+            return '请输入密码';
+          }
+          if (password.length < 6) {
+            return '密码长度不能少于6位';
+          }
+          return '';
+        };
+
+        const validateCode = (code) => {
+          if (!code) {
+            return '请输入验证码';
+          }
+          if (!/^\d{6}$/.test(code)) {
+            return '请输入6位数字验证码';
+          }
+          return '';
+        };
+
+        const sendCode = () => {
+          const phoneError = validatePhone(smsForm.phone);
+          if (phoneError) {
+            errors.phone = phoneError;
+            return;
+          }
+          errors.phone = '';
+
+          countdown.value = 60;
+          const timer = setInterval(() => {
+            countdown.value--;
+            if (countdown.value <= 0) {
+              clearInterval(timer);
+            }
+          }, 1000);
+
+          ElMessage.success('验证码已发送');
+        };
+
+        const handleLogin = () => {
+          errors.phone = '';
+          errors.password = '';
+          errors.code = '';
+
+          if (loginType.value === 'password') {
+            const phoneError = validatePhone(passwordForm.phone);
+            const passwordError = validatePassword(passwordForm.password);
+
+            if (phoneError) {
+              errors.phone = phoneError;
+              return;
+            }
+            if (passwordError) {
+              errors.password = passwordError;
+              return;
+            }
+          } else {
+            const phoneError = validatePhone(smsForm.phone);
+            const codeError = validateCode(smsForm.code);
+
+            if (phoneError) {
+              errors.phone = phoneError;
+              return;
+            }
+            if (codeError) {
+              errors.code = codeError;
+              return;
+            }
+          }
+
+          loading.value = true;
+
+          setTimeout(() => {
+            loading.value = false;
+            ElMessage.success('登录成功');
+            window.location.href = 'admin-dashboard.html';
+          }, 1500);
+        };
+
+        const forgotPassword = () => {
+          ElMessage.info('请联系系统管理员重置密码');
+        };
+
+        const goToRegister = () => {
+          ElMessage.info('请联系系统管理员开通账号');
+        };
+
+        return {
+          loginType,
+          showPassword,
+          rememberMe,
+          loading,
+          countdown,
+          passwordForm,
+          smsForm,
+          errors,
+          sendCode,
+          handleLogin,
+          forgotPassword,
+          goToRegister
+        };
+      }
+    });
+
+    app.use(ElementPlus);
+    app.mount('#app');
+  </script>
+</body>
+</html>

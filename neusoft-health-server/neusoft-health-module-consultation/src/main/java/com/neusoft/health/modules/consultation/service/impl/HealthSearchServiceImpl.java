@@ -2,7 +2,7 @@ package com.neusoft.health.modules.consultation.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.neusoft.health.framework.ai.DeepSeekClient;
+import com.neusoft.health.framework.ai.AiClient;
 import com.neusoft.health.modules.consultation.entity.HealthSearchCache;
 import com.neusoft.health.modules.consultation.mapper.HealthSearchCacheMapper;
 import com.neusoft.health.modules.consultation.service.HealthSearchService;
@@ -21,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class HealthSearchServiceImpl extends ServiceImpl<HealthSearchCacheMapper, HealthSearchCache> implements HealthSearchService {
 
-    private final DeepSeekClient deepSeekClient;
+    private final AiClient aiClient;
 
     private static final Integer SOURCE_AI = 1;
 
@@ -74,7 +74,7 @@ public class HealthSearchServiceImpl extends ServiceImpl<HealthSearchCacheMapper
                 "用户正在搜索健康相关问题，请基于可靠的医学常识，为用户提供专业、准确、简洁的解答。" +
                 "回答请控制在300字以内，条理清晰，分点说明。注意：你的回答仅供参考，不能替代专业医疗诊断。";
 
-        String aiReply = deepSeekClient.chat(systemPrompt, keyword);
+        String aiReply = aiClient.chat(systemPrompt, keyword);
         
         // AI调用失败处理
         if (aiReply == null || aiReply.isEmpty()) {

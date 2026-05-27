@@ -21,5 +21,11 @@ public class UserHealthProfileUpdateDTO {
     @Size(max = 500, message = "既往病史最长500字")
     private String medicalHistory;
 
+    @Size(max = 500, message = "用药史最长500字")
+    private String medicationHistory;
+
+    @Size(max = 500, message = "家族病史最长500字")
+    private String familyHistory;
+
     private Integer autoSync;
 }

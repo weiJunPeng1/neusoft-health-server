@@ -36,6 +36,10 @@ const goBack = () => uni.navigateBack()
 const onItemClick = (item: any, index: number) => {
   uni.showToast({ title: `查看: ${item.text}`, icon: 'none' })
 }
+
+if (!useUserStore.isLoggedIn) {
+  uni.navigateTo({ url: '/pages/login/index' })
+}
 </script>
 
 <style scoped>

@@ -43,6 +43,12 @@ public class UserHealthProfile {
     /** 既往病史（AES-256加密存储） */
     private String medicalHistory;
 
+    /** 用药史（AES-256加密存储） */
+    private String medicationHistory;
+
+    /** 家族病史（AES-256加密存储） */
+    private String familyHistory;
+
     /** 是否自动同步给AI：0=否，1=是 */
     private Integer autoSync;
 

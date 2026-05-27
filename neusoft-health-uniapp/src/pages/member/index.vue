@@ -17,8 +17,8 @@
         </view>
         <view class="status-quotas">
           <view class="quota-item">
-            <text class="quota-val">{{ memberStatus.dailyQuota || 0 }}</text>
-            <text class="quota-label">次/日</text>
+            <text class="quota-val">{{ memberStatus.levelCode === 'L3' ? '∞' : (memberStatus.dailyQuota || 0) }}</text>
+            <text class="quota-label">{{ memberStatus.levelCode === 'L3' ? '无限' : '次/日' }}</text>
           </view>
           <view class="quota-item">
             <text class="quota-val">{{ memberStatus.contextRounds || 0 }}</text>
@@ -56,6 +56,12 @@
       <!-- 权益对比表 -->
       <view class="section-title">权益对比</view>
       <view class="benefits-table">
+        <!-- 表头：会员等级名称 -->
+        <view class="benefits-header">
+          <text class="benefits-header-name">权益项目</text>
+          <text v-for="(level,j) in levelNames" :key="j" class="benefits-header-item">{{ level }}</text>
+        </view>
+        <!-- 权益行 -->
         <view class="benefit-row" v-for="(row,i) in benefits" :key="i">
           <text class="benefit-name">{{ row.name }}</text>
           <text v-for="(val,j) in row.values" :key="j" :class="['benefit-val', val === '✓' ? 'green' : val === '—' ? 'gray' : '']">{{ val }}</text>
@@ -86,7 +92,8 @@
 <script setup lang="ts">
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
-import { reactive, onMounted } from 'vue'
+import { reactive } from 'vue'
+import { onShow } from '@dcloudio/uni-app'
 import { useScrollToTop } from '@/composables/useScrollToTop'
 import { memberApi } from '@/api/member'
 import { paymentApi } from '@/api/payment'
@@ -112,12 +119,15 @@ const levels = reactive<MemberLevelVO[]>([])
 const plans = reactive<SubscriptionPlan[]>([])
 const history = reactive<any[]>([])
 
+// 会员等级名称（用于权益对比表表头）
+const levelNames = ['普通用户', '白银会员', '黄金会员', '铂金会员']
+
 const benefits = [
-  { name: '每日咨询次数', key: 'dailyQuota', values: [3, 20, 50, '∞'] },
-  { name: '上下文轮数', key: 'contextRounds', values: [5, 15, 30, 50] },
-  { name: '自动建档', key: 'autoSync', values: [false, true, true, true] },
-  { name: '深度分析', key: 'deepAnalysis', values: [false, false, false, true] },
-  { name: '导出记录', key: 'exportEnabled', values: [false, true, true, true] },
+  { name: '每日咨询次数', key: 'dailyQuota', values: ['3次', '20次', '50次', '无限'] },
+  { name: '上下文轮数', key: 'contextRounds', values: ['5轮', '15轮', '30轮', '50轮'] },
+  { name: '自动建档', key: 'autoSync', values: ['—', '✓', '✓', '✓'] },
+  { name: '深度分析', key: 'deepAnalysis', values: ['—', '—', '—', '✓'] },
+  { name: '导出记录', key: 'exportEnabled', values: ['—', '✓', '✓', '✓'] },
 ]
 
 const doSubscribe = async (code: string) => {
@@ -133,13 +143,12 @@ const doSubscribe = async (code: string) => {
   }
 }
 
-onMounted(async () => {
+onShow(async () => {
   if (!useUserStore.isLoggedIn) {
-    console.log('用户未登录，跳转到登录页')
     uni.navigateTo({ url: '/pages/login/index' })
     return
   }
-  
+
   try {
     const [statusRes, levelsRes] = await Promise.all([
       memberApi.getStatus(),
@@ -249,17 +258,55 @@ onMounted(async () => {
   font-weight: 500;
 }
 
-.benefits-table { margin: 0 16px; background: #FFFFFF; border-radius: 14px; overflow: hidden; }
+.benefits-table { margin: 0 16px; background: #FFFFFF; border-radius: 16px; overflow: hidden; }
+.benefits-header {
+  display: flex;
+  padding: 16px 16px;
+  background: linear-gradient(135deg, #F8FAFC 0%, #F1F5F9 100%);
+  border-bottom: 1px solid #E2E8F0;
+}
+.benefits-header-name { 
+  flex: 2.2; 
+  font-size: 10px; 
+  font-weight: 600; 
+  color: #646A73;
+  padding-right: 12px;
+}
+.benefits-header-item { 
+  flex: 1; 
+  text-align: center; 
+  font-size: 12px; 
+  font-weight: 600; 
+  color: #4A90D9;
+  padding: 0 4px;
+}
 .benefit-row {
   display: flex;
-  padding: 12px 16px;
-  border-bottom: 1px solid #F5F5F5;
+  padding: 14px 20px;
+  border-bottom: 1px solid #F1F5F9;
 }
 .benefit-row:last-child { border-bottom: none; }
-.benefit-name { flex: 2; font-size: 13px; color: #646A73; }
-.benefit-val { flex: 1; text-align: center; font-size: 13px; font-weight: 500; color: #1F2329; }
-.benefit-val.green { color: #52C41A; }
-.benefit-val.gray { color: #BBBFC4; }
+.benefit-name { 
+  flex: 2.2; 
+  font-size: 13px; 
+  color: #4E5969;
+  padding-right: 12px;
+  display: flex;
+  align-items: center;
+}
+.benefit-val { 
+  flex: 1; 
+  text-align: center; 
+  font-size: 13px; 
+  font-weight: 500; 
+  color: #2D3748;
+  padding: 0 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.benefit-val.green { color: #52C41A; font-size: 16px; }
+.benefit-val.gray { color: #BBBFC4; font-size: 14px; }
 
 .history-item { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; }
 .history-item + .history-item { border-top: 1px solid #F5F5F5; }

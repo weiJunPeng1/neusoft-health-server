@@ -2,6 +2,7 @@ package com.neusoft.health.modules.member.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.neusoft.health.common.enums.RefundStatusEnum;
 import com.neusoft.health.common.exception.BusinessException;
 import com.neusoft.health.common.result.ResultCode;
 import com.neusoft.health.modules.member.dto.RefundApplyDTO;
@@ -232,13 +233,7 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
         vo.setReason(refund.getReason());
         vo.setRefundAmount(refund.getRefundAmount());
         vo.setStatus(refund.getStatus());
-        switch (refund.getStatus()) {
-            case 0: vo.setStatusDesc("待审核"); break;
-            case 1: vo.setStatusDesc("已通过"); break;
-            case 2: vo.setStatusDesc("已拒绝"); break;
-            case 3: vo.setStatusDesc("已到账"); break;
-            case 4: vo.setStatusDesc("到账失败"); break;
-        }
+        vo.setStatusDesc(RefundStatusEnum.getDescByCode(refund.getStatus()));
         vo.setHandledBy(refund.getHandledBy());
         vo.setHandleRemark(refund.getHandleRemark());
         vo.setHandledTime(refund.getHandledTime());

@@ -80,6 +80,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/v1/health-search/**").permitAll()
                         .requestMatchers("/api/v1/sensitive-word/**").permitAll()
                         .requestMatchers("/api/v1/payment/callback/**").permitAll()
+                        .requestMatchers("/api/v1/payment/notify/**").permitAll()
+                        .requestMatchers("/api/v1/payment/return/**").permitAll()
                         .requestMatchers("/api/v1/payment/alipay-pay-page/**").permitAll()
                         .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()
                         .requestMatchers("/api/v1/admin/**").hasAnyRole("R002", "R003", "R004")

@@ -21,6 +21,10 @@ public class UserHealthProfileVO {
 
     private String medicalHistory;
 
+    private String medicationHistory;
+
+    private String familyHistory;
+
     private Integer autoSync;
 
     private LocalDateTime createdTime;

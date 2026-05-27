@@ -18,22 +18,45 @@
     </view>
 
     <!-- 消息列表 -->
-    <scroll-view scroll-y class="msg-area" :scroll-top="scrollTop">
+    <scroll-view scroll-y class="msg-area" :scroll-top="scrollTop" @click="skipTypingEffect">
       <view v-for="(msg, i) in messages" :key="i" :class="['msg-row', msg.role === 'user' ? 'msg-user' : 'msg-ai']">
         <view v-if="msg.role === 'assistant'" class="msg-avatar"><SvgIcon name="robot" :size="20" color="#4A90D9" /></view>
         <view :class="['msg-bubble', msg.role === 'user' ? 'bubble-user' : 'bubble-ai']">
-          <view class="msg-text" v-html="formatMessage(msg.content)"></view>
+          <view 
+            class="msg-text" 
+            v-html="formatMessage(typingState.active && typingState.index === i ? typingState.displayed : msg.content)"
+          ></view>
           <view v-if="msg.role === 'assistant' && msg.id" class="msg-actions">
             <view 
               class="msg-action-btn" 
+              :class="{ 'speaking': isSpeaking }"
+              @click.stop="speak(msg.content)"
+            >
+              <SvgIcon name="volume" :size="16" :color="isSpeaking ? '#4A90D9' : '#BBBFC4'" />
+            </view>
+            <view 
+              class="msg-action-btn" 
               :class="{ 'favorited': favoritedIds.includes(msg.id!) }"
-              @click="toggleFavorite(msg.id!)"
+              @click.stop="toggleFavorite(msg.id!)"
             >
               <SvgIcon :name="favoritedIds.includes(msg.id!) ? 'heart' : 'heart-outline'" :size="16" :color="favoritedIds.includes(msg.id!) ? '#FF4757' : '#BBBFC4'" />
             </view>
           </view>
         </view>
         <view v-if="msg.role === 'user'" class="msg-avatar"><SvgIcon name="user" :size="20" color="#4A90D9" /></view>
+      </view>
+
+      <!-- AI 加载动画 -->
+      <view v-if="isLoading" class="msg-row msg-ai">
+        <view class="msg-avatar"><SvgIcon name="robot" :size="20" color="#4A90D9" /></view>
+        <view class="msg-bubble bubble-ai">
+          <view class="typing-indicator">
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+            <view class="typing-dot"></view>
+            <text class="typing-text">AI回复中</text>
+          </view>
+        </view>
       </view>
 
       <!-- 快捷问题（仅初始状态） -->
@@ -75,23 +98,36 @@
 <script setup lang="ts">
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Modal from '@/components/Modal/Modal.vue'
-import { ref, reactive, nextTick, onMounted } from 'vue'
+import { ref, reactive, nextTick, onMounted, onUnmounted } from 'vue'
 import { onLoad, onShow } from '@dcloudio/uni-app'
 import { consultApi } from '@/api/consult'
 import { memberApi } from '@/api/member'
 import { userApi } from '@/api/user'
 import { useUserStore } from '@/stores/user'
+import { useSettingsStore } from '@/stores/settings'
+import { useVoicePlayer } from '@/composables/useVoicePlayer'
 import type { ConsultMessage, MemberStatus } from '@/types'
+
+const { isSpeaking, preload, speak, autoSpeak, stop: stopVoice } = useVoicePlayer()
 
 const inputText = ref('')
 const scrollTop = ref(0)
 const showEmerModal = ref(false)
 const currentSessionId = ref<number | null>(null)
+const fromHistory = ref(false)
+const isLoading = ref(false)
 
 const messages = reactive<ConsultMessage[]>([])
 const favoritedIds = ref<number[]>([])
 const healthProfile = ref<any>(null)
 const autoSyncHealthProfile = ref(true)
+
+const typingState = reactive({
+  active: false,
+  index: -1,
+  content: '',
+  displayed: ''
+})
 
 const memberStatus = reactive<MemberStatus>({
   levelCode: '',
@@ -122,12 +158,59 @@ const formatMessage = (content: string): string => {
     .replace(/\n/g, '<br/>')
 }
 
+let typingTimer: ReturnType<typeof setInterval> | null = null
+
+const startTypingEffect = (index: number, content: string, onComplete?: () => void) => {
+  if (typingTimer) {
+    clearInterval(typingTimer)
+  }
+
+  typingState.active = true
+  typingState.index = index
+  typingState.content = content
+  typingState.displayed = ''
+
+  let charIndex = 0
+  typingTimer = setInterval(() => {
+    if (charIndex < content.length) {
+      typingState.displayed += content[charIndex]
+      charIndex++
+      nextTick(() => scrollToBottom())
+    } else {
+      clearInterval(typingTimer!)
+      typingTimer = null
+      typingState.active = false
+      messages[index].content = content
+      onComplete?.()
+    }
+  }, 30)
+}
+
+const skipTypingEffect = () => {
+  if (typingTimer) {
+    clearInterval(typingTimer)
+    typingTimer = null
+  }
+  if (typingState.active && typingState.index >= 0) {
+    const content = typingState.content
+    messages[typingState.index].content = content
+    typingState.active = false
+    autoSpeak(content)
+  }
+}
+
 const loadSessionMessages = async (sessionId: number) => {
   try {
     const res = await consultApi.listMessages(sessionId)
     messages.splice(0, messages.length)
     messages.push(...(res.data || []))
     nextTick(() => scrollToBottom())
+
+    // 预合成最后一条AI消息的语音
+    const lastAiMsg = [...messages].reverse().find(m => m.role === 'assistant')
+    if (lastAiMsg?.content) {
+      preload(lastAiMsg.content)
+    }
   } catch (err) {
     console.error('加载会话消息失败', err)
   }
@@ -163,7 +246,7 @@ const checkQuota = async (): Promise<boolean> => {
 
 const sendMessage = async (text: string) => {
   const msg = text.trim()
-  if (!msg) return
+  if (!msg || isLoading.value) return
 
   const canSend = await checkQuota()
   if (!canSend) return
@@ -180,15 +263,25 @@ const sendMessage = async (text: string) => {
 
   messages.push({ id: 0, sessionId: currentSessionId.value, role: 'user', content: msg, createdTime: new Date().toISOString() })
   inputText.value = ''
+  isLoading.value = true
   nextTick(() => scrollToBottom())
 
   try {
     const profileData = autoSyncHealthProfile.value ? healthProfile.value : undefined
     const res = await consultApi.sendMessage(currentSessionId.value, msg, profileData)
-    messages.push(res.data)
     memberStatus.todayUsed++
-    scrollToBottom()
+
+    const aiMsg: ConsultMessage = { ...res.data, content: '' }
+    messages.push(aiMsg)
+    const msgIndex = messages.length - 1
+
+    isLoading.value = false
+    preload(res.data.content)
+    startTypingEffect(msgIndex, res.data.content, () => {
+      autoSpeak(res.data.content)
+    })
   } catch (err: any) {
+    isLoading.value = false
     messages.push({ id: 0, sessionId: currentSessionId.value, role: 'assistant', content: err.message || '发送失败，请重试', createdTime: new Date().toISOString() })
     scrollToBottom()
   }
@@ -203,11 +296,15 @@ const showEmergency = () => {
 }
 
 const goBack = () => {
-  const pages = getCurrentPages()
-  if (pages.length <= 1) {
-    uni.navigateTo({ url: '/pages/consult-history/index' })
+  if (fromHistory.value) {
+    uni.switchTab({ url: '/pages/index/index' })
   } else {
-    uni.navigateBack()
+    const pages = getCurrentPages()
+    if (pages.length <= 1) {
+      uni.switchTab({ url: '/pages/index/index' })
+    } else {
+      uni.navigateBack()
+    }
   }
 }
 
@@ -251,10 +348,8 @@ const loadHealthProfile = async () => {
 
 const loadSettings = async () => {
   try {
-    const res = await userApi.getSettings()
-    if (res.data) {
-      autoSyncHealthProfile.value = res.data.autoSyncHealthProfile ?? true
-    }
+    await useSettingsStore.load()
+    autoSyncHealthProfile.value = useSettingsStore.settings.autoSyncHealthProfile ?? true
   } catch (err) {
     console.error('加载设置失败', err)
   }
@@ -263,6 +358,7 @@ const loadSettings = async () => {
 onLoad((options: any) => {
   if (options?.sessionId) {
     currentSessionId.value = parseInt(options.sessionId)
+    fromHistory.value = true
   }
 })
 
@@ -287,6 +383,14 @@ onMounted(async () => {
 
 onShow(() => {
   scrollTop.value = 0
+})
+
+onUnmounted(() => {
+  stopVoice()
+  if (typingTimer) {
+    clearInterval(typingTimer)
+    typingTimer = null
+  }
 })
 </script>
 
@@ -344,6 +448,7 @@ onShow(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 8px;
+  gap: 8px;
 }
 .msg-action-btn {
   padding: 4px 8px;
@@ -355,7 +460,37 @@ onShow(() => {
 .msg-action-btn:hover {
   opacity: 1;
 }
+.msg-action-btn.speaking {
+  background: rgba(74, 144, 217, 0.1);
+}
 .action-icon { font-size: 16px; }
+
+/* AI 加载动画 */
+.typing-indicator {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+}
+.typing-dot {
+  width: 8px;
+  height: 8px;
+  background: #4A90D9;
+  border-radius: 50%;
+  animation: typingBounce 1.4s infinite ease-in-out;
+}
+.typing-dot:nth-child(1) { animation-delay: 0s; }
+.typing-dot:nth-child(2) { animation-delay: 0.2s; }
+.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+.typing-text {
+  font-size: 14px;
+  color: #8F959E;
+  margin-left: 4px;
+}
+@keyframes typingBounce {
+  0%, 80%, 100% { transform: scale(0.6); opacity: 0.4; }
+  40% { transform: scale(1); opacity: 1; }
+}
 
 .quick-qs { margin-top: 16px; }
 .quick-label { font-size: 13px; color: #8F959E; margin-bottom: 10px; display: block; }

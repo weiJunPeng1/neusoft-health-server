@@ -53,6 +53,8 @@ public class UserHealthProfileServiceImpl extends ServiceImpl<UserHealthProfileM
         if (dto.getBloodType() != null) profile.setBloodType(dto.getBloodType());
         if (dto.getAllergies() != null) profile.setAllergies(dto.getAllergies());
         if (dto.getMedicalHistory() != null) profile.setMedicalHistory(dto.getMedicalHistory());
+        if (dto.getMedicationHistory() != null) profile.setMedicationHistory(dto.getMedicationHistory());
+        if (dto.getFamilyHistory() != null) profile.setFamilyHistory(dto.getFamilyHistory());
         if (dto.getAutoSync() != null) profile.setAutoSync(dto.getAutoSync());
         saveOrUpdate(profile);
         return getByUserId(userId);

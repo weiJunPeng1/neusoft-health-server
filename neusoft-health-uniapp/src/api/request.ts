@@ -1,13 +1,24 @@
 import type { ApiResponse } from '@/types'
 import { useUserStore } from '@/stores/user'
 
-const BASE_URL = 'http://localhost:8080'
+const getBaseUrl = () => {
+  // #ifdef H5
+  const { protocol, hostname } = window.location
+  return `${protocol}//${hostname}:8080`
+  // #endif
+  // #ifndef H5
+  return 'http://localhost:8080'
+  // #endif
+}
+
+const BASE_URL = getBaseUrl()
 
 interface RequestOptions {
   url: string
   method?: 'GET' | 'POST' | 'PUT' | 'DELETE'
   data?: any
   header?: Record<string, string>
+  timeout?: number
 }
 
 export const request = <T = any>(options: RequestOptions): Promise<ApiResponse<T>> => {
@@ -17,6 +28,7 @@ export const request = <T = any>(options: RequestOptions): Promise<ApiResponse<T
       url: BASE_URL + options.url,
       method: options.method || 'GET',
       data: options.data,
+      timeout: options.timeout || 10000,
       header: {
         'Content-Type': 'application/json',
         ...(token ? { Authorization: `Bearer ${token}` } : {}),

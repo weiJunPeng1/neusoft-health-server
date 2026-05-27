@@ -19,6 +19,7 @@ export const consultApi = {
     url: '/api/v1/consultation/message',
     method: 'POST',
     data: { sessionId, content, healthProfile },
+    timeout: 60000,
   }),
   listMessages: (sessionId: number) => request<ConsultMessage[]>({
     url: `/api/v1/consultation/session/${sessionId}/messages`,
@@ -41,5 +42,13 @@ export const consultApi = {
     url: '/api/v1/health-search',
     method: 'POST',
     data: { keyword },
+  }),
+
+  // TTS 语音合成
+  synthesize: (text: string) => request<{ audio: string; format: string }>({
+    url: '/api/v1/tts/synthesize',
+    method: 'POST',
+    data: { text },
+    timeout: 30000,
   }),
 }

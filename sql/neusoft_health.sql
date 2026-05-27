@@ -11,11 +11,38 @@
  Target Server Version : 80030 (8.0.30)
  File Encoding         : 65001
 
- Date: 25/05/2026 16:09:59
+ Date: 26/05/2026 08:44:00
 */
 
 SET NAMES utf8mb4;
 SET FOREIGN_KEY_CHECKS = 0;
+
+-- ----------------------------
+-- Table structure for consult_daily_quota
+-- ----------------------------
+DROP TABLE IF EXISTS `consult_daily_quota`;
+CREATE TABLE `consult_daily_quota`  (
+  `id` bigint UNSIGNED NOT NULL AUTO_INCREMENT COMMENT '主键',
+  `user_id` bigint UNSIGNED NOT NULL COMMENT '用户ID',
+  `consult_date` date NOT NULL COMMENT '咨询日期',
+  `consult_count` int NOT NULL DEFAULT 0 COMMENT '当日咨询次数',
+  `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  `updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `uk_user_date`(`user_id` ASC, `consult_date` ASC) USING BTREE,
+  INDEX `idx_user_id`(`user_id` ASC) USING BTREE,
+  INDEX `idx_consult_date`(`consult_date` ASC) USING BTREE,
+  CONSTRAINT `fk_consult_daily_quota_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
+) ENGINE = InnoDB CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = '用户每日咨询配额使用记录' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of consult_daily_quota
+-- ----------------------------
+INSERT INTO `consult_daily_quota` VALUES (1, 3, '2026-05-24', 2, '2026-05-24 09:15:00', '2026-05-24 14:30:00');
+INSERT INTO `consult_daily_quota` VALUES (2, 3, '2026-05-25', 3, '2026-05-25 08:20:00', '2026-05-25 16:45:00');
+INSERT INTO `consult_daily_quota` VALUES (3, 3, '2026-05-26', 1, '2026-05-26 10:00:00', '2026-05-26 10:00:00');
+INSERT INTO `consult_daily_quota` VALUES (4, 2, '2026-05-25', 8, '2026-05-25 09:00:00', '2026-05-25 21:30:00');
+INSERT INTO `consult_daily_quota` VALUES (5, 2, '2026-05-26', 3, '2026-05-26 08:30:00', '2026-05-26 11:00:00');
 
 -- ----------------------------
 -- Table structure for emergency_logs
@@ -321,7 +348,7 @@ CREATE TABLE `payment_orders`  (
   INDEX `fk_payment_orders_plan_id`(`plan_id` ASC) USING BTREE,
   CONSTRAINT `fk_payment_orders_plan_id` FOREIGN KEY (`plan_id`) REFERENCES `subscription_plans` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
   CONSTRAINT `fk_payment_orders_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE = InnoDB AUTO_INCREMENT = 14 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '支付订单' ROW_FORMAT = Dynamic;
+) ENGINE = InnoDB AUTO_INCREMENT = 15 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_0900_ai_ci COMMENT = '支付订单' ROW_FORMAT = Dynamic;
 
 -- ----------------------------
 -- Records of payment_orders
@@ -339,6 +366,7 @@ INSERT INTO `payment_orders` VALUES (10, 'MP20260525113351476900', 2, 1, 19.90, 
 INSERT INTO `payment_orders` VALUES (11, 'MP20260525113406290200', 2, 2, 49.90, 'alipay', 2, NULL, NULL, '2026-05-25 11:49:07', '2026-05-25 11:34:07', '2026-05-25 11:34:07', 0);
 INSERT INTO `payment_orders` VALUES (12, 'MP20260525113421788400', 2, 4, 39.90, 'alipay', 0, NULL, NULL, '2026-05-25 11:49:22', '2026-05-25 11:34:22', '2026-05-25 11:34:22', 0);
 INSERT INTO `payment_orders` VALUES (13, 'MP20260525113744842200', 2, 7, 69.90, 'alipay', 0, NULL, NULL, '2026-05-25 11:52:44', '2026-05-25 11:37:44', '2026-05-25 11:37:44', 0);
+INSERT INTO `payment_orders` VALUES (14, 'MP20260525163206319000', 2, 1, 19.90, 'alipay', 0, NULL, NULL, '2026-05-25 16:47:06', '2026-05-25 16:32:06', '2026-05-25 16:32:06', 0);
 
 -- ----------------------------
 -- Table structure for permissions
@@ -771,6 +799,8 @@ CREATE TABLE `user_health_profiles`  (
   `blood_type` varchar(4) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '血型: A/B/AB/O/未知',
   `allergies` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '过敏史(AES加密)',
   `medical_history` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '既往病史(AES加密)',
+  `medication_history` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '用药史(AES加密)',
+  `family_history` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '家族病史(AES加密)',
   `auto_sync` tinyint NULL DEFAULT 0 COMMENT '是否自动同步给AI',
   `created_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_time` datetime NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -901,7 +931,7 @@ CREATE TABLE `user_settings`  (
 -- Records of user_settings
 -- ----------------------------
 INSERT INTO `user_settings` VALUES (1, 1, 1, 1, 1.00, 80, 'default', 0, 0, 1, 1, '2026-05-19 23:07:56', '2026-05-19 23:07:56', 0);
-INSERT INTO `user_settings` VALUES (2, 2, 1, 1, 0.50, 80, 'default', 0, 0, 1, 1, '2026-05-25 11:48:50', '2026-05-25 11:48:50', 0);
+INSERT INTO `user_settings` VALUES (2, 2, 0, 1, 0.50, 80, 'default', 0, 0, 1, 1, '2026-05-25 11:48:50', '2026-05-25 11:48:50', 0);
 
 -- ----------------------------
 -- Table structure for users

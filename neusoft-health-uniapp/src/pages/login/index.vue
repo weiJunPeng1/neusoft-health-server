@@ -79,7 +79,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onUnmounted } from 'vue'
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { onShow } from '@dcloudio/uni-app'
 import { authApi } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
@@ -159,11 +159,25 @@ const skipLogin = () => {
   uni.switchTab({ url: '/pages/index/index' })
 }
 
+const handlePopState = () => {
+  uni.switchTab({ url: '/pages/index/index' })
+}
+
+onMounted(() => {
+  // #ifdef H5
+  window.history.pushState(null, '', window.location.href)
+  window.addEventListener('popstate', handlePopState)
+  // #endif
+})
+
 onUnmounted(() => {
   if (timer) {
     clearInterval(timer)
     timer = null
   }
+  // #ifdef H5
+  window.removeEventListener('popstate', handlePopState)
+  // #endif
 })
 
 onShow(() => {

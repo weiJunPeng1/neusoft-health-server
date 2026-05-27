@@ -88,10 +88,19 @@ public class PaymentController {
 
     @Operation(summary = "生成电脑网站支付URL")
     @GetMapping("/page-pay/{orderNo}")
-    public R<Map<String, String>> createPagePayUrl(@PathVariable String orderNo) {
+    public R<Map<String, String>> createPagePayUrl(@PathVariable String orderNo, HttpServletRequest request) {
         try {
             PaymentOrderVO order = paymentService.queryOrder(orderNo);
-            String pagePayUrl = "http://localhost:8080/api/v1/payment/alipay-pay-page/" + orderNo;
+            String scheme = request.getScheme();
+            String serverName = request.getServerName();
+            int serverPort = request.getServerPort();
+            String baseUrl;
+            if (("http".equals(scheme) && serverPort == 80) || ("https".equals(scheme) && serverPort == 443)) {
+                baseUrl = scheme + "://" + serverName;
+            } else {
+                baseUrl = scheme + "://" + serverName + ":" + serverPort;
+            }
+            String pagePayUrl = baseUrl + "/api/v1/payment/alipay-pay-page/" + orderNo;
             Map<String, String> result = new HashMap<>();
             result.put("pagePayUrl", pagePayUrl);
             result.put("orderNo", orderNo);
@@ -210,6 +219,89 @@ public class PaymentController {
         String orderNo = params.get("orderNo");
         paymentService.simulatePayment(orderNo);
         return R.ok();
+    }
+
+    @Operation(summary = "支付宝支付成功前端回调（无需登录）")
+    @GetMapping("/return/alipay")
+    public String alipayReturn(HttpServletRequest request) {
+        try {
+            Map<String, String> params = new HashMap<>();
+            Map<String, String[]> requestParams = request.getParameterMap();
+            for (String name : requestParams.keySet()) {
+                String[] values = requestParams.get(name);
+                StringBuilder valueStr = new StringBuilder();
+                for (int i = 0; i < values.length; i++) {
+                    if (i > 0) valueStr.append(",");
+                    valueStr.append(values[i]);
+                }
+                params.put(name, valueStr.toString());
+            }
+
+            log.info("支付宝同步回调参数：{}", params);
+
+            String orderNo = params.get("out_trade_no");
+            String tradeNo = params.get("trade_no");
+            String totalAmount = params.get("total_amount");
+
+            if (orderNo == null || orderNo.isEmpty()) {
+                log.warn("支付宝同步回调缺少订单号参数");
+                return buildResultPage(false, "支付参数异常", "", "", "");
+            }
+
+            // 同步回调仅用于展示，不依赖异步通知(notify)已可靠处理订单，直接展示成功页面即可
+            // handleAlipayCallback 已做幂等处理，重复调用安全
+            paymentService.handleAlipayCallback(orderNo, tradeNo);
+            log.info("支付宝同步回调处理成功，订单号：{}", orderNo);
+            return buildResultPage(true, "支付成功", orderNo, tradeNo, totalAmount);
+        } catch (Exception e) {
+            log.error("处理支付宝同步回调异常", e);
+            return buildResultPage(false, "处理异常：" + e.getMessage(), "", "", "");
+        }
+    }
+
+    private String buildResultPage(boolean success, String message, String orderNo, String tradeNo, String totalAmount) {
+        String color = success ? "#52c41a" : "#ff4d4f";
+        String icon = success ? "&#10004;" : "&#10008;";
+        return "<!DOCTYPE html><html><head><meta charset=\"UTF-8\"><meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">"
+                + "<title>支付结果</title><style>"
+                + "body{margin:0;padding:0;display:flex;justify-content:center;align-items:center;min-height:100vh;"
+                + "font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;background:#f5f5f5;}"
+                + ".card{background:#fff;border-radius:12px;padding:40px;text-align:center;box-shadow:0 2px 12px rgba(0,0,0,0.1);max-width:420px;width:90%;}"
+                + ".icon{font-size:64px;margin-bottom:16px;}"
+                + "h2{color:#333;margin:0 0 12px;}"
+                + ".msg{color:#666;margin-bottom:24px;}"
+                + ".info{text-align:left;background:#fafafa;border-radius:8px;padding:16px;margin-bottom:24px;font-size:14px;color:#666;}"
+                + ".info p{margin:8px 0;}"
+                + ".info span{color:#333;font-weight:500;}"
+                + ".btn{display:inline-block;padding:10px 32px;border-radius:6px;background:" + color + ";color:#fff;text-decoration:none;font-size:16px;border:none;cursor:pointer;}"
+                + "</style></head><body><div class=\"card\">"
+                + "<div class=\"icon\" style=\"color:" + color + ";\">" + icon + "</div>"
+                + "<h2>" + (success ? "支付成功" : "支付处理提示") + "</h2>"
+                + "<p class=\"msg\">" + message + "</p>"
+                + (orderNo != null && !orderNo.isEmpty()
+                    ? "<div class=\"info\">"
+                        + "<p>订单号：<span>" + orderNo + "</span></p>"
+                        + (tradeNo != null && !tradeNo.isEmpty() ? "<p>交易号：<span>" + tradeNo + "</span></p>" : "")
+                        + (totalAmount != null && !totalAmount.isEmpty() ? "<p>支付金额：<span>&#165;" + totalAmount + "</span></p>" : "")
+                        + "</div>"
+                    : "")
+                + "<p id=\"countdown\" style=\"color:#999;font-size:13px;\">页面将在3秒后自动关闭...</p>"
+                + "</div>"
+                + "<script>"
+                + "var count = 3;"
+                + "var countdownEl = document.getElementById('countdown');"
+                + "var timer = setInterval(function() {"
+                + "  count--;"
+                + "  if (count > 0) {"
+                + "    countdownEl.textContent = '页面将在' + count + '秒后自动关闭...';"
+                + "  } else {"
+                + "    clearInterval(timer);"
+                + "    try { window.opener = null; window.close(); } catch(e) { }"
+                + "    try { if (window.history.length > 1) { window.history.go(-2); } } catch(e) { }"
+                + "  }"
+                + "}, 1000);"
+                + "</script>"
+                + "</body></html>";
     }
 
     @Operation(summary = "支付宝扫码支付回调（无需登录）")

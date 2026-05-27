@@ -16,5 +16,9 @@ public class HealthProfileUpdateDTO {
 
     private String medicalHistory;
 
+    private String medicationHistory;
+
+    private String familyHistory;
+
     private Integer autoSync;
 }

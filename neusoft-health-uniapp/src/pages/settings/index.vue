@@ -63,20 +63,16 @@
 import NavHeader from '@/components/NavHeader/NavHeader.vue'
 import Card from '@/components/Card/Card.vue'
 import Modal from '@/components/Modal/Modal.vue'
-import { ref, reactive, computed } from 'vue'
+import { ref, computed } from 'vue'
 import { useScrollToTop } from '@/composables/useScrollToTop'
-import { userApi } from '@/api/user'
 import { authApi } from '@/api/auth'
 import { useUserStore } from '@/stores/user'
+import { useSettingsStore } from '@/stores/settings'
 import type { UserSettings } from '@/types'
 
 const { scrollTop } = useScrollToTop()
 
-const settings = reactive<UserSettings>({
-  notificationEnabled: 1, voiceEnabled: 1, voiceSpeed: 1.0,
-  voiceVolume: 80, voiceTone: 'default', anonymousMode: 0,
-  privacyMode: 0, recommendEnabled: 1, autoSyncHealthProfile: 1
-})
+const settings = useSettingsStore.settings
 
 const showAboutModal = ref(false)
 const showDisclaimerModal = ref(false)
@@ -100,8 +96,7 @@ interface SettingSection {
 }
 
 const update = (key: keyof UserSettings, value: any) => {
-  (settings as any)[key] = value
-  userApi.updateSettings({ [key]: value }).catch(console.error)
+  useSettingsStore.update(key, value)
 }
 
 const toggle = (key: keyof UserSettings) => (e: any) => update(key, e.detail.value ? 1 : 0)
@@ -152,7 +147,7 @@ const logout = () => {
 }
 
 useUserStore.isLoggedIn || uni.navigateTo({ url: '/pages/login/index' })
-userApi.getSettings().then((res) => res.data && Object.assign(settings, res.data)).catch(console.error)
+useSettingsStore.load()
 </script>
 
 <style scoped>

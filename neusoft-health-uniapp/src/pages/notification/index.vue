@@ -89,6 +89,10 @@ const openDetail = (item: any) => {
 }
 
 const goBack = () => uni.navigateBack()
+
+if (!useUserStore.isLoggedIn) {
+  uni.navigateTo({ url: '/pages/login/index' })
+}
 </script>
 
 <style scoped>

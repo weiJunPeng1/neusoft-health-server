@@ -2,7 +2,7 @@ package com.neusoft.health.modules.consultation.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.neusoft.health.framework.ai.DeepSeekClient;
+import com.neusoft.health.framework.ai.AiClient;
 import com.neusoft.health.modules.consultation.dto.MessageReviewDTO;
 import com.neusoft.health.common.enums.MessageRoleEnum;
 import com.neusoft.health.common.enums.ReviewStatusEnum;
@@ -41,7 +41,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private final SessionService sessionService;
     private final SensitiveWordService sensitiveWordService;
     private final EmergencyService emergencyService;
-    private final DeepSeekClient deepSeekClient;
+    private final AiClient aiClient;
     private final MemberService memberService;
 
     @Override
@@ -157,7 +157,7 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
                 .collect(Collectors.toList());
 
         // 调用AI
-        String aiReply = deepSeekClient.chat(systemPrompt, content, history);
+        String aiReply = aiClient.chat(systemPrompt, content, history);
         long duration = System.currentTimeMillis() - startTime;
 
         // AI调用失败处理
