@@ -1,6 +1,7 @@
 package com.neusoft.health.modules.member.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.neusoft.health.common.enums.PaymentStatusEnum;
 import com.neusoft.health.common.exception.BusinessException;
 import com.neusoft.health.common.result.ResultCode;
 import com.neusoft.health.modules.member.dto.OrderCreateDTO;
@@ -78,12 +79,26 @@ public class PaymentServiceImpl implements PaymentService {
         }
         User user = userMapper.selectById(userId);
         boolean isFirst = user != null && (user.getFirstPurchase() == null || user.getFirstPurchase() == 0);
+        BigDecimal amount = isFirst && plan.getOriginalPrice() != null ? plan.getOriginalPrice() : plan.getPrice();
+
+        PaymentOrder existingOrder = orderMapper.selectOne(
+                new LambdaQueryWrapper<PaymentOrder>()
+                        .eq(PaymentOrder::getUserId, userId)
+                        .eq(PaymentOrder::getPlanId, plan.getId())
+                        .eq(PaymentOrder::getAmount, amount)
+                        .eq(PaymentOrder::getPayStatus, PaymentStatusEnum.PENDING.getCode())
+                        .gt(PaymentOrder::getExpireTime, LocalDateTime.now())
+                        .last("LIMIT 1"));
+        if (existingOrder != null) {
+            return toVO(existingOrder, plan.getPlanName());
+        }
+
         String orderNo = "MP" + LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyyMMddHHmmss")) + String.format("%06d", System.nanoTime() % 1000000);
         PaymentOrder order = new PaymentOrder();
         order.setOrderNo(orderNo);
         order.setUserId(userId);
         order.setPlanId(plan.getId());
-        order.setAmount(isFirst && plan.getOriginalPrice() != null ? plan.getOriginalPrice() : plan.getPrice());
+        order.setAmount(amount);
         order.setPayMethod("alipay");
         order.setPayStatus(0);
         order.setExpireTime(LocalDateTime.now().plusMinutes(15));
@@ -136,14 +151,7 @@ public class PaymentServiceImpl implements PaymentService {
         vo.setAmount(order.getAmount());
         vo.setPayMethod(order.getPayMethod());
         vo.setPayStatus(order.getPayStatus());
-        switch (order.getPayStatus()) {
-            case 0: vo.setPayStatusDesc("待支付"); break;
-            case 1: vo.setPayStatusDesc("已支付"); break;
-            case 2: vo.setPayStatusDesc("已取消"); break;
-            case 3: vo.setPayStatusDesc("退款中"); break;
-            case 4: vo.setPayStatusDesc("已到账"); break;
-            case 5: vo.setPayStatusDesc("到账失败"); break;
-        }
+        vo.setPayStatusDesc(PaymentStatusEnum.getDescByCode(order.getPayStatus()));
         vo.setPaidTime(order.getPaidTime());
         vo.setExpireTime(order.getExpireTime());
         vo.setCreatedTime(order.getCreatedTime());
