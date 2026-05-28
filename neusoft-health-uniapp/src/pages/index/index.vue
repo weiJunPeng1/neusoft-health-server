@@ -95,11 +95,32 @@ import Card from '@/components/Card/Card.vue'
 import { systemApi } from '@/api/user'
 import type { HomeData } from '@/types'
 
+// 状态栏高度
+const statusBarHeight = ref(44)
+
 const homeData = ref<HomeData>({
   faqCategories: [],
   articles: [],
   disclaimer: ''
 })
+
+// 模拟数据，确保图标能显示
+const defaultFaqCategories = [
+  { id: 1, name: '感冒发烧', faqList: [1, 2, 3, 4, 5, 6] },
+  { id: 2, name: '肠胃不适', faqList: [1, 2, 3, 4, 5] },
+  { id: 3, name: '睡眠问题', faqList: [1, 2, 3, 4, 5] },
+  { id: 4, name: '运动健康', faqList: [1, 2, 3, 4, 5] },
+  { id: 5, name: '饮食营养', faqList: [1, 2, 3, 4, 5] },
+  { id: 6, name: '皮肤问题', faqList: [1, 2, 3, 4, 5] },
+]
+
+const defaultArticles = [
+  { id: 1, title: '春季养生小贴士', createdTime: '2024-03-15 10:30:00' },
+  { id: 2, title: '如何预防流感', createdTime: '2024-03-14 15:20:00' },
+  { id: 3, title: '健康饮食指南', createdTime: '2024-03-13 09:10:00' },
+]
+
+const defaultDisclaimer = '【健康咨询仅供参考，不能替代专业医生诊断和治疗】'
 
 const services = [
   { name: '智能问诊', page: 'consult', icon: 'message', color: 'c-blue' },
@@ -165,11 +186,40 @@ const openArticle = (art: any) => {
 }
 
 onMounted(async () => {
+  // 获取状态栏高度（兼容新旧 API）
+  let barHeight = 44
+  try {
+    // 优先使用新 API
+    const windowInfo = uni.getWindowInfo?.()
+    if (windowInfo && windowInfo.statusBarHeight) {
+      barHeight = windowInfo.statusBarHeight
+    } else {
+      // 兼容旧版本
+      const sysInfo = uni.getSystemInfoSync?.()
+      if (sysInfo && sysInfo.statusBarHeight) {
+        barHeight = sysInfo.statusBarHeight
+      }
+    }
+  } catch (e) {
+    console.warn('获取状态栏高度失败，使用默认值')
+  }
+  statusBarHeight.value = barHeight
+  
+  // 获取首页数据，失败时使用默认数据
   try {
     const res = await systemApi.getHomeData()
-    homeData.value = res.data
+    homeData.value = {
+      faqCategories: res.data.faqCategories.length > 0 ? res.data.faqCategories : defaultFaqCategories,
+      articles: res.data.articles.length > 0 ? res.data.articles : defaultArticles,
+      disclaimer: res.data.disclaimer || defaultDisclaimer
+    }
   } catch (err) {
-    console.error('获取首页数据失败', err)
+    console.error('获取首页数据失败，使用默认数据', err)
+    homeData.value = {
+      faqCategories: defaultFaqCategories,
+      articles: defaultArticles,
+      disclaimer: defaultDisclaimer
+    }
   }
 })
 
@@ -182,6 +232,12 @@ onShow(() => {
 .page {
   min-height: 100vh;
   background: #F5F7FA;
+}
+
+/* 状态栏占位 */
+.status-bar {
+  width: 100%;
+  background: linear-gradient(135deg, #4A90D9 0%, #357ABD 100%);
 }
 
 /* 顶部蓝色区域 */

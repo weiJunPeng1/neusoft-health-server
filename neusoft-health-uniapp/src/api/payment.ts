@@ -20,11 +20,6 @@ export const paymentApi = {
   }),
   getMyRefunds: () => request<any[]>({ url: '/api/v1/payment/refund/my' }),
   getOrders: () => request<PaymentOrder[]>({ url: '/api/v1/payment/orders' }),
-  simulatePayment: (orderNo: string) => request<void>({
-    url: '/api/v1/payment/simulate-payment',
-    method: 'POST',
-    data: { orderNo },
-  }),
   getQrCode: (orderNo: string) => request<{ qrCode: string; orderNo: string }>({
     url: `/api/v1/payment/qrcode/${orderNo}`,
   }),

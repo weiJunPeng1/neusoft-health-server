@@ -9,6 +9,7 @@ export interface UserProfile {
   memberLevel: string
   memberExpireTime: string
   status: number
+  hasPassword: boolean
 }
 
 // 会员状态

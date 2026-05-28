@@ -78,7 +78,7 @@
         confirm-type="send"
         @confirm="sendMessage(inputText)"
       />
-      <view class="send-btn" @click="sendMessage(inputText)">
+      <view class="send-btn" :class="{ 'send-btn-disabled': isLoading }" @click="!isLoading && sendMessage(inputText)">
         <text class="send-icon">↑</text>
       </view>
     </view>
@@ -247,9 +247,13 @@ const checkQuota = async (): Promise<boolean> => {
 const sendMessage = async (text: string) => {
   const msg = text.trim()
   if (!msg || isLoading.value) return
+  isLoading.value = true
 
   const canSend = await checkQuota()
-  if (!canSend) return
+  if (!canSend) {
+    isLoading.value = false
+    return
+  }
 
   if (!currentSessionId.value) {
     try {
@@ -381,8 +385,10 @@ onMounted(async () => {
   }
 })
 
-onShow(() => {
-  scrollTop.value = 0
+onShow(async () => {
+  if (currentSessionId.value) {
+    await loadSessionMessages(currentSessionId.value)
+  }
 })
 
 onUnmounted(() => {
@@ -531,6 +537,7 @@ onUnmounted(() => {
   justify-content: center;
 }
 .send-icon { color: #FFFFFF; font-size: 18px; font-weight: 700; }
+.send-btn-disabled { opacity: 0.5; pointer-events: none; }
 
 .modal-inner { text-align: center; }
 .emer-modal-icon { font-size: 48px; margin-bottom: 12px; }

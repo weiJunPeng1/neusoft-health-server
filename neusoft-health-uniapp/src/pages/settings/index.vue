@@ -104,7 +104,7 @@ const toggle = (key: keyof UserSettings) => (e: any) => update(key, e.detail.val
 const sections = computed<SettingSection[]>(() => [
   {
     key: 'security', items: [
-      { key: 'pwd', icon: 'lock', title: '修改密码', sub: '修改登录密码', bg: '#EBF5FF', color: '#4A90D9', action: () => uni.navigateTo({ url: '/pages/forgot-password/index' }) }
+      { key: 'pwd', icon: 'lock', title: '密码管理', sub: '设置或修改登录密码', bg: '#EBF5FF', color: '#4A90D9', action: () => uni.navigateTo({ url: '/pages/forgot-password/index' }) }
     ]
   },
   {

@@ -3,6 +3,7 @@ import { consultApi } from '@/api/consult'
 import { useSettingsStore } from '@/stores/settings'
 
 const isSpeaking = ref(false)
+let isProcessing = false
 let audioContext: any = null
 let h5Audio: HTMLAudioElement | null = null
 
@@ -28,6 +29,15 @@ function getTextHash(text: string): string {
   return hash.toString(36)
 }
 
+function base64ToUint8Array(base64: string): Uint8Array {
+  const binaryStr = atob(base64)
+  const bytes = new Uint8Array(binaryStr.length)
+  for (let i = 0; i < binaryStr.length; i++) {
+    bytes[i] = binaryStr.charCodeAt(i)
+  }
+  return bytes
+}
+
 function stop() {
   // #ifdef H5
   if (h5Audio) {
@@ -51,7 +61,7 @@ function stop() {
 function playOnH5(base64: string) {
   stop()
 
-  const audioSrc = `data:audio/mp3;base64,${base64}`
+  const audioSrc = `data:audio/mpeg;base64,${base64}`
   h5Audio = new Audio(audioSrc)
 
   h5Audio.onplay = () => { isSpeaking.value = true }
@@ -150,6 +160,101 @@ async function getAudio(text: string): Promise<string | null> {
   return promise
 }
 
+// #ifdef H5
+async function streamAndPlay(text: string): Promise<void> {
+  stop()
+  isSpeaking.value = true
+
+  try {
+    const stream = await consultApi.synthesizeSse(text)
+    if (!stream) {
+      const audio = await getAudio(text)
+      if (audio) playBase64(audio)
+      return
+    }
+
+    const reader = stream.getReader()
+    const decoder = new TextDecoder()
+    let buffer = ''
+    const chunks: Uint8Array[] = []
+
+    while (true) {
+      const { done, value } = await reader.read()
+      if (done) break
+
+      buffer += decoder.decode(value, { stream: true })
+      const lines = buffer.split('\n')
+      buffer = lines.pop() || ''
+
+      let currentEvent = ''
+      let currentData = ''
+
+      for (const line of lines) {
+        if (line.startsWith('event')) {
+          currentEvent = line.substring(line.indexOf(':') + 1).trim()
+        } else if (line.startsWith('data')) {
+          currentData = line.substring(line.indexOf(':') + 1).trim()
+        } else if (line === '' && currentEvent && currentData) {
+          if (currentEvent === 'audio' && currentData !== 'complete') {
+            try {
+              chunks.push(base64ToUint8Array(currentData))
+            } catch (e) {
+              // skip malformed chunk
+            }
+          } else if (currentEvent === 'done' && chunks.length > 0) {
+            const merged = mergeChunks(chunks)
+            const blob = new Blob([merged], { type: 'audio/mpeg' })
+            const url = URL.createObjectURL(blob)
+            h5Audio = new Audio(url)
+            h5Audio.onended = () => {
+              isSpeaking.value = false
+              URL.revokeObjectURL(url)
+              h5Audio = null
+            }
+            h5Audio.onerror = () => {
+              console.error('H5流式音频播放失败')
+              isSpeaking.value = false
+              URL.revokeObjectURL(url)
+              h5Audio = null
+            }
+            h5Audio.play().catch(err => {
+              console.error('H5播放失败', err)
+              isSpeaking.value = false
+            })
+          }
+          currentEvent = ''
+          currentData = ''
+        }
+      }
+    }
+  } catch (err) {
+    console.error('SSE流式TTS失败，回退到非流式', err)
+    const audio = await getAudio(text)
+    if (audio) playBase64(audio)
+  }
+}
+
+function mergeChunks(chunks: Uint8Array[]): Uint8Array {
+  let totalLen = 0
+  for (const c of chunks) totalLen += c.length
+  const merged = new Uint8Array(totalLen)
+  let offset = 0
+  for (const c of chunks) {
+    merged.set(c, offset)
+    offset += c.length
+  }
+  return merged
+}
+
+function uint8ArrayToBase64(bytes: Uint8Array): string {
+  let binaryStr = ''
+  for (let i = 0; i < bytes.length; i++) {
+    binaryStr += String.fromCharCode(bytes[i])
+  }
+  return btoa(binaryStr)
+}
+// #endif
+
 export function useVoicePlayer() {
   const preload = async (text: string) => {
     if (!useSettingsStore.voiceEnabled || !text) return
@@ -162,22 +267,39 @@ export function useVoicePlayer() {
 
   const speak = async (text: string) => {
     if (!useSettingsStore.voiceEnabled || !text) return
+    if (isProcessing) return
     if (isSpeaking.value) {
       stop()
       return
     }
 
+    isProcessing = true
     const cleaned = cleanText(text)
-    if (!cleaned) return
+    if (!cleaned) {
+      isProcessing = false
+      return
+    }
 
-    const audio = await getAudio(cleaned)
-    if (audio) {
-      playBase64(audio)
+    try {
+      // #ifdef H5
+      await streamAndPlay(cleaned)
+      return
+      // #endif
+
+      // #ifndef H5
+      const audio = await getAudio(cleaned)
+      if (audio) {
+        playBase64(audio)
+      }
+      // #endif
+    } finally {
+      isProcessing = false
     }
   }
 
   const autoSpeak = async (text: string) => {
     if (!useSettingsStore.voiceEnabled || !text) return
+    if (isProcessing) return
 
     const cleaned = cleanText(text)
     if (!cleaned) return
@@ -186,9 +308,22 @@ export function useVoicePlayer() {
       stop()
     }
 
-    const audio = await getAudio(cleaned)
-    if (audio) {
-      playBase64(audio)
+    isProcessing = true
+
+    try {
+      // #ifdef H5
+      await streamAndPlay(cleaned)
+      return
+      // #endif
+
+      // #ifndef H5
+      const audio = await getAudio(cleaned)
+      if (audio) {
+        playBase64(audio)
+      }
+      // #endif
+    } finally {
+      isProcessing = false
     }
   }
 

@@ -51,4 +51,23 @@ export const consultApi = {
     data: { text },
     timeout: 30000,
   }),
+
+  synthesizeSse: async (text: string): Promise<ReadableStream<Uint8Array> | null> => {
+    // #ifdef H5
+    const token = uni.getStorageSync('token')
+    const { protocol, hostname } = window.location
+    const resp = await fetch(`${protocol}//${hostname}:8080/api/v1/tts/synthesize/sse`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+      },
+      body: JSON.stringify({ text }),
+    })
+    return resp.body as ReadableStream<Uint8Array>
+    // #endif
+    // #ifndef H5
+    return null
+    // #endif
+  },
 }
