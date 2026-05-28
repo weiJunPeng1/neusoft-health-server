@@ -4,6 +4,8 @@ import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.neusoft.health.modules.admin.service.AdminUserService;
 import com.neusoft.health.common.entity.User;
 import com.neusoft.health.common.mapper.UserMapper;
+import com.neusoft.health.common.utils.AesUtil;
+import com.neusoft.health.common.utils.PhoneUtil;
 import com.neusoft.health.modules.system.vo.UserVO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.BeanUtils;
@@ -55,7 +57,16 @@ public class AdminUserServiceImpl implements AdminUserService {
     private UserVO toVO(User user) {
         UserVO vo = new UserVO();
         BeanUtils.copyProperties(user, vo);
+        vo.setPhone(safeDecryptPhone(user.getPhoneEncrypted()));
         return vo;
+    }
+
+    private String safeDecryptPhone(String phoneEncrypted) {
+        try {
+            return PhoneUtil.mask(AesUtil.decrypt(phoneEncrypted));
+        } catch (Exception e) {
+            return phoneEncrypted;
+        }
     }
 }
 

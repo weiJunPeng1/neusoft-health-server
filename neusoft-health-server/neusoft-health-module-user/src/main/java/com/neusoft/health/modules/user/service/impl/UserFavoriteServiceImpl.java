@@ -35,11 +35,9 @@ public class UserFavoriteServiceImpl extends ServiceImpl<UserFavoriteMapper, Use
 
     @Override
     public void toggle(Long userId, Long messageId) {
-        UserFavorite existing = getOne(new LambdaQueryWrapper<UserFavorite>()
-                .eq(UserFavorite::getUserId, userId)
-                .eq(UserFavorite::getMessageId, messageId));
-        if (existing != null) {
-            removeById(existing.getId());
+        Long existingId = baseMapper.findIdByUserAndMessage(userId, messageId);
+        if (existingId != null) {
+            removeById(existingId);
         } else {
             UserFavorite favorite = new UserFavorite();
             favorite.setUserId(userId);

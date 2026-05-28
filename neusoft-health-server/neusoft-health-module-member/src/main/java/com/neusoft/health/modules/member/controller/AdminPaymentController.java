@@ -1,8 +1,11 @@
 package com.neusoft.health.modules.member.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
+import com.neusoft.health.common.mapper.UserMapper;
 import com.neusoft.health.common.result.R;
 import com.neusoft.health.framework.util.SecurityUtil;
+import com.neusoft.health.common.annotation.AdminOperation;
+import com.neusoft.health.common.entity.User;
 import com.neusoft.health.modules.member.entity.PaymentOrder;
 import com.neusoft.health.modules.member.entity.SubscriptionPlan;
 import com.neusoft.health.modules.member.mapper.PaymentOrderMapper;
@@ -18,6 +21,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Tag(name = "支付管理后台", description = "订单管理、退款审核接口")
@@ -30,6 +34,7 @@ public class AdminPaymentController {
     private final PaymentOrderMapper paymentOrderMapper;
     private final SubscriptionPlanMapper subscriptionPlanMapper;
     private final RefundService refundService;
+    private final UserMapper userMapper;
 
     @Operation(summary = "获取支付订单列表")
     @GetMapping("/orders")
@@ -38,7 +43,10 @@ public class AdminPaymentController {
                 new LambdaQueryWrapper<PaymentOrder>()
                         .orderByDesc(PaymentOrder::getCreatedTime)
         );
-        return R.ok(orders.stream().map(this::toOrderVO).collect(Collectors.toList()));
+        List<Long> userIds = orders.stream().map(PaymentOrder::getUserId).distinct().collect(Collectors.toList());
+        Map<Long, User> userMap = userIds.isEmpty() ? Map.of() :
+                userMapper.selectBatchIds(userIds).stream().collect(Collectors.toMap(User::getId, u -> u));
+        return R.ok(orders.stream().map(o -> toOrderVO(o, userMap)).collect(Collectors.toList()));
     }
 
     @Operation(summary = "获取退款申请列表")
@@ -48,6 +56,7 @@ public class AdminPaymentController {
     }
 
     @Operation(summary = "审核通过退款申请")
+    @AdminOperation(module = "支付管理", operation = "审核通过退款", targetType = "RefundRequest", targetIdParam = "#id")
     @PostMapping("/refund/{id}/approve")
     @PreAuthorize("hasRole('R002')")
     public R<Void> approveRefund(@PathVariable Long id, @RequestParam(required = false) String remark) {
@@ -56,6 +65,7 @@ public class AdminPaymentController {
     }
 
     @Operation(summary = "审核拒绝退款申请")
+    @AdminOperation(module = "支付管理", operation = "审核拒绝退款", targetType = "RefundRequest", targetIdParam = "#id")
     @PostMapping("/refund/{id}/reject")
     @PreAuthorize("hasRole('R002')")
     public R<Void> rejectRefund(@PathVariable Long id, @RequestParam(required = false) String remark) {
@@ -63,9 +73,11 @@ public class AdminPaymentController {
         return R.ok();
     }
 
-    private PaymentOrderVO toOrderVO(PaymentOrder order) {
+    private PaymentOrderVO toOrderVO(PaymentOrder order, Map<Long, User> userMap) {
         PaymentOrderVO vo = new PaymentOrderVO();
+        vo.setId(order.getId());
         vo.setOrderNo(order.getOrderNo());
+        vo.setUserId(order.getUserId());
         vo.setPlanId(order.getPlanId());
         vo.setAmount(order.getAmount());
         vo.setPayMethod(order.getPayMethod());
@@ -86,7 +98,10 @@ public class AdminPaymentController {
         if (plan != null) {
             vo.setPlanName(plan.getPlanName());
         }
-        
+        User user = userMap.get(order.getUserId());
+        if (user != null) {
+            vo.setNickname(user.getNickname());
+        }
         return vo;
     }
 }

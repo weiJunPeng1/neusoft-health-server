@@ -1,4 +1,4 @@
-﻿-- ============================================================
+-- ============================================================
 -- 东软智慧健康咨询系统 V1.0 数据库初始化DDL
 -- 数据库: MySQL 8.0
 -- 编码: utf8mb4
@@ -146,12 +146,14 @@ CREATE TABLE sessions (
     message_count   INT             DEFAULT 0               COMMENT '消息数量',
     last_message_at DATETIME        DEFAULT NULL            COMMENT '最后消息时间',
     status          TINYINT         DEFAULT 1               COMMENT '状态: 1=进行中, 0=已结束',
+    category        VARCHAR(16)     DEFAULT ''              COMMENT '咨询分类(内科/外科/儿科/...由AI自动识别)',
     created_time    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
     updated_time    DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
     is_deleted      TINYINT         DEFAULT 0               COMMENT '逻辑删除',
     INDEX idx_user_id (user_id),
     INDEX idx_user_last_msg (user_id, last_message_at),
-    INDEX idx_last_message_at (last_message_at)
+    INDEX idx_last_message_at (last_message_at),
+    INDEX idx_category (category)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='咨询会话表';
 
 -- ============================================================

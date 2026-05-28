@@ -2,7 +2,6 @@ package com.neusoft.health.modules.user.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
-import com.neusoft.health.modules.user.dto.HealthProfileUpdateDTO;
 import com.neusoft.health.modules.user.dto.UserHealthProfileUpdateDTO;
 import com.neusoft.health.modules.user.entity.UserHealthProfile;
 import com.neusoft.health.modules.user.mapper.UserHealthProfileMapper;
@@ -19,13 +18,6 @@ public class UserHealthProfileServiceImpl extends ServiceImpl<UserHealthProfileM
     @Override
     public UserHealthProfileVO getProfile(Long userId) {
         return getByUserId(userId);
-    }
-
-    @Override
-    public UserHealthProfileVO updateProfile(Long userId, HealthProfileUpdateDTO dto) {
-        UserHealthProfileUpdateDTO updateDTO = new UserHealthProfileUpdateDTO();
-        BeanUtils.copyProperties(dto, updateDTO);
-        return updateProfile(userId, updateDTO);
     }
 
     @Override

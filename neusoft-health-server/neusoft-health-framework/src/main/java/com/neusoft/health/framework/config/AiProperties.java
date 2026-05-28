@@ -22,6 +22,12 @@ public class AiProperties {
 
     private Double temperature;
 
+    private String embeddingModel = "deepseek-embedding";
+
+    private String chatEndpoint;
+
+    private String responsesEndpoint;
+
     private Boolean enabled = true;
 
     private Integer maxCallsPerMinute = 100;
@@ -30,5 +36,32 @@ public class AiProperties {
 
     public AiProvider getAiProvider() {
         return AiProvider.fromCode(provider);
+    }
+
+    public String resolveChatEndpoint() {
+        if (chatEndpoint != null && !chatEndpoint.isBlank()) {
+            return apiUrl + chatEndpoint;
+        }
+        if (getAiProvider() == AiProvider.DOUBAO) {
+            return apiUrl + "/chat/completions";
+        }
+        return apiUrl + "/v1/chat/completions";
+    }
+
+    public String resolveResponsesEndpoint() {
+        if (responsesEndpoint != null && !responsesEndpoint.isBlank()) {
+            return apiUrl + responsesEndpoint;
+        }
+        if (getAiProvider() == AiProvider.DOUBAO) {
+            return apiUrl + "/responses";
+        }
+        return apiUrl + "/v1/responses";
+    }
+
+    public String resolveEmbeddingEndpoint() {
+        if (getAiProvider() == AiProvider.DOUBAO) {
+            return apiUrl + "/embeddings";
+        }
+        return apiUrl + "/v1/embeddings";
     }
 }

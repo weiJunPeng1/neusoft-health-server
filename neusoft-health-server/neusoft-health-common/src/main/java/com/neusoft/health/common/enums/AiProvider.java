@@ -8,7 +8,8 @@ public enum AiProvider {
     DEEPSEEK("DeepSeek", "Authorization", "Bearer "),
     MIMO("MiMo", "api-key", ""),
     BAILIAN_MIMO("百炼-MiMo", "Authorization", "Bearer "),
-    OPENAI("OpenAI", "Authorization", "Bearer ");
+    OPENAI("OpenAI", "Authorization", "Bearer "),
+    DOUBAO("豆包", "Authorization", "Bearer ");
 
     private final String displayName;
     private final String authHeaderName;

@@ -65,15 +65,6 @@ public class SessionServiceImpl extends ServiceImpl<SessionMapper, Session> impl
         return session;
     }
 
-    @Override
-    public void markSessionEnded(Long sessionId, Long userId) {
-        Session session = getById(sessionId);
-        if (session != null && session.getUserId().equals(userId)) {
-            session.setStatus(0);
-            updateById(session);
-        }
-    }
-
     private SessionVO toVO(Session session) {
         SessionVO vo = new SessionVO();
         BeanUtils.copyProperties(session, vo);

@@ -59,13 +59,5 @@ public interface SessionService extends IService<Session> {
      * @return 会话实体
      */
     Session createSession(Long userId, String firstMessage);
-
-    /**
-     * 标记会话结束
-     *
-     * @param sessionId 会话ID
-     * @param userId 用户ID
-     */
-    void markSessionEnded(Long sessionId, Long userId);
 }
 

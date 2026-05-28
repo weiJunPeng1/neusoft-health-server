@@ -172,12 +172,11 @@ public class AiClient {
 
             HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
 
+            String chatUrl = aiProperties.resolveChatEndpoint();
+            log.debug("AI请求URL: {}", chatUrl);
+
             @SuppressWarnings("rawtypes")
-            var response = restTemplate.postForEntity(
-                    aiProperties.getApiUrl() + "/v1/chat/completions",
-                    request,
-                    Map.class
-            );
+            var response = restTemplate.postForEntity(chatUrl, request, Map.class);
 
             long duration = System.currentTimeMillis() - startTime;
 
@@ -205,6 +204,173 @@ public class AiClient {
             log.error("AI调用失败: provider={}, source={}, duration={}ms, error={}",
                     provider.getDisplayName(), source, duration, e.getMessage(), e);
             return "抱歉，AI 服务暂时不可用，请稍后再试。";
+        }
+    }
+
+    public String chatMultimodal(String systemPrompt, String userText, String imageUrl) {
+        return chatMultimodal(systemPrompt, userText, imageUrl, null);
+    }
+
+    public String chatMultimodal(String systemPrompt, String userText, String imageUrl,
+                                 List<Map<String, Object>> history) {
+        AiProvider provider = aiProperties.getAiProvider();
+        String source = getCallSource();
+        long startTime = System.currentTimeMillis();
+
+        if (aiProperties.getEnabled() == null || !aiProperties.getEnabled()) {
+            log.error("多模态AI调用被拒绝，服务已禁用: provider={}, source={}", provider.getDisplayName(), source);
+            return "AI服务暂时维护中，请稍后再试。";
+        }
+
+        if (!checkRateLimit(source)) {
+            log.error("多模态AI调用被拒绝，超过调用限制: provider={}, source={}", provider.getDisplayName(), source);
+            return "AI服务暂时繁忙，请稍后再试。";
+        }
+
+        try {
+            log.info("多模态AI调用开始: provider={}, model={}, source={}, hasImage={}",
+                    provider.getDisplayName(), aiProperties.getModel(), source, imageUrl != null);
+
+            List<Map<String, Object>> inputItems = new ArrayList<>();
+
+            if (systemPrompt != null && !systemPrompt.isEmpty()) {
+                Map<String, Object> systemItem = new HashMap<>();
+                systemItem.put("role", "system");
+                systemItem.put("content", List.of(
+                        Map.of("type", "input_text", "text", systemPrompt)
+                ));
+                inputItems.add(systemItem);
+            }
+
+            if (history != null) {
+                inputItems.addAll(history);
+            }
+
+            List<Map<String, Object>> userContent = new ArrayList<>();
+            if (imageUrl != null && !imageUrl.isBlank()) {
+                userContent.add(Map.of("type", "input_image", "image_url", imageUrl));
+            }
+            userContent.add(Map.of("type", "input_text", "text", userText));
+
+            Map<String, Object> userItem = new HashMap<>();
+            userItem.put("role", "user");
+            userItem.put("content", userContent);
+            inputItems.add(userItem);
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", aiProperties.getModel());
+            requestBody.put("input", inputItems);
+
+            HttpHeaders headers = new HttpHeaders();
+            String authValue = provider.getAuthHeaderPrefix() + aiProperties.getApiKey();
+            headers.set(provider.getAuthHeaderName(), authValue);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+            String responsesUrl = aiProperties.resolveResponsesEndpoint();
+            log.debug("多模态AI请求URL: {}", responsesUrl);
+
+            @SuppressWarnings("rawtypes")
+            var response = restTemplate.postForEntity(responsesUrl, request, Map.class);
+
+            long duration = System.currentTimeMillis() - startTime;
+
+            if (response.getBody() != null) {
+                @SuppressWarnings("unchecked")
+                List<Map<String, Object>> output = (List<Map<String, Object>>) response.getBody().get("output");
+                if (output != null && !output.isEmpty()) {
+                    for (Map<String, Object> item : output) {
+                        String type = (String) item.get("type");
+                        if ("message".equals(type)) {
+                            @SuppressWarnings("unchecked")
+                            List<Map<String, String>> contentList =
+                                    (List<Map<String, String>>) item.get("content");
+                            if (contentList != null && !contentList.isEmpty()) {
+                                String content = contentList.get(0).get("text");
+                                log.info("多模态AI调用成功: provider={}, source={}, duration={}ms, responseLength={}",
+                                        provider.getDisplayName(), source, duration,
+                                        content != null ? content.length() : 0);
+                                return content;
+                            }
+                        }
+                    }
+                }
+            }
+            log.warn("多模态AI调用返回空响应: provider={}, source={}, duration={}ms",
+                    provider.getDisplayName(), source, duration);
+            return null;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("多模态AI调用失败: provider={}, source={}, duration={}ms, error={}",
+                    provider.getDisplayName(), source, duration, e.getMessage(), e);
+            return "抱歉，AI 服务暂时不可用，请稍后再试。";
+        }
+    }
+
+    @SuppressWarnings("unchecked")
+    public float[] embedding(String text) {
+        AiProvider provider = aiProperties.getAiProvider();
+        String source = getCallSource();
+        long startTime = System.currentTimeMillis();
+
+        if (aiProperties.getEnabled() == null || !aiProperties.getEnabled()) {
+            log.error("Embedding调用被拒绝，服务已禁用: source={}", source);
+            return null;
+        }
+
+        if (!checkRateLimit(source)) {
+            log.error("Embedding调用被拒绝，超过调用限制: source={}", source);
+            return null;
+        }
+
+        try {
+            String embeddingModel = aiProperties.getEmbeddingModel() != null
+                    ? aiProperties.getEmbeddingModel() : "deepseek-embedding";
+
+            log.info("Embedding调用开始: model={}, source={}, textLength={}",
+                    embeddingModel, source, text != null ? text.length() : 0);
+
+            Map<String, Object> requestBody = new HashMap<>();
+            requestBody.put("model", embeddingModel);
+            requestBody.put("input", text);
+
+            HttpHeaders headers = new HttpHeaders();
+            String authValue = provider.getAuthHeaderPrefix() + aiProperties.getApiKey();
+            headers.set(provider.getAuthHeaderName(), authValue);
+            headers.setContentType(MediaType.APPLICATION_JSON);
+
+            HttpEntity<Map<String, Object>> request = new HttpEntity<>(requestBody, headers);
+
+            String embeddingUrl = aiProperties.resolveEmbeddingEndpoint();
+            log.debug("Embedding请求URL: {}", embeddingUrl);
+
+            Map<String, Object> response = restTemplate.postForObject(embeddingUrl, request, Map.class);
+
+            long duration = System.currentTimeMillis() - startTime;
+
+            if (response != null) {
+                List<Map<String, Object>> data = (List<Map<String, Object>>) response.get("data");
+                if (data != null && !data.isEmpty()) {
+                    List<Number> embeddingList = (List<Number>) data.get(0).get("embedding");
+                    if (embeddingList != null) {
+                        float[] result = new float[embeddingList.size()];
+                        for (int i = 0; i < embeddingList.size(); i++) {
+                            result[i] = embeddingList.get(i).floatValue();
+                        }
+                        log.info("Embedding调用成功: source={}, duration={}ms, dimensions={}",
+                                source, duration, result.length);
+                        return result;
+                    }
+                }
+            }
+            log.warn("Embedding调用返回空响应: source={}, duration={}ms", source, duration);
+            return null;
+        } catch (Exception e) {
+            long duration = System.currentTimeMillis() - startTime;
+            log.error("Embedding调用失败: source={}, duration={}ms, error={}",
+                    source, duration, e.getMessage(), e);
+            return null;
         }
     }
 

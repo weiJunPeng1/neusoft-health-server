@@ -38,6 +38,7 @@ public class OperationLogServiceImpl extends ServiceImpl<OperationLogMapper, Ope
         log.setUsername(username);
         log.setOperation(action);
         log.setRequestParams(detail);
+        log.setIsDeleted(0);
         save(log);
     }
 

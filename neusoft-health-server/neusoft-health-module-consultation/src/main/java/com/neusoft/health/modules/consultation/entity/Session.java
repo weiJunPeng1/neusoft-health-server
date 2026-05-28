@@ -39,6 +39,9 @@ public class Session {
     /** 会话状态：0=已结束，1=进行中 */
     private Integer status;
 
+    /** 咨询分类（由AI自动识别：内科/外科/儿科/...） */
+    private String category;
+
     /** 创建时间（自动填充） */
     @TableField(fill = FieldFill.INSERT)
     private LocalDateTime createdTime;

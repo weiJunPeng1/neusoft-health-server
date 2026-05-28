@@ -2,7 +2,7 @@ package com.neusoft.health.modules.user.controller;
 
 import com.neusoft.health.common.result.R;
 import com.neusoft.health.framework.util.SecurityUtil;
-import com.neusoft.health.modules.user.dto.HealthProfileUpdateDTO;
+import com.neusoft.health.modules.user.dto.UserHealthProfileUpdateDTO;
 import com.neusoft.health.modules.user.dto.UserSettingUpdateDTO;
 import com.neusoft.health.modules.user.service.UserFavoriteService;
 import com.neusoft.health.modules.user.service.UserHealthProfileService;
@@ -37,7 +37,7 @@ public class UserProfileController {
 
     @Operation(summary = "更新健康档案", description = "更新当前用户的健康档案信息，未传字段保持不变")
     @PutMapping("/health-profile")
-    public R<Void> updateHealthProfile(@Valid @RequestBody HealthProfileUpdateDTO dto) {
+    public R<Void> updateHealthProfile(@Valid @RequestBody UserHealthProfileUpdateDTO dto) {
         healthProfileService.updateProfile(SecurityUtil.requireCurrentUserId(), dto);
         return R.ok();
     }

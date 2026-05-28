@@ -168,10 +168,4 @@ public class PaymentServiceImpl implements PaymentService {
             return toVO(order, plan != null ? plan.getPlanName() : "");
         }).collect(Collectors.toList());
     }
-
-    @Override
-    @Transactional
-    public void simulatePayment(String orderNo) {
-        handleAlipayCallback(orderNo, "SIM_" + System.currentTimeMillis());
-    }
 }

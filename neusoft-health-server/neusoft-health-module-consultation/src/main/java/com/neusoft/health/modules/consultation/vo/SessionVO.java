@@ -18,5 +18,7 @@ public class SessionVO {
 
     private Integer status;
 
+    private String category;
+
     private LocalDateTime createdTime;
 }

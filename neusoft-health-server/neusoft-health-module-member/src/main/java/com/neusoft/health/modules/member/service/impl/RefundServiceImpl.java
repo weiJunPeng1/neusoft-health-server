@@ -3,6 +3,8 @@ package com.neusoft.health.modules.member.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.neusoft.health.common.enums.RefundStatusEnum;
+import com.neusoft.health.common.utils.AesUtil;
+import com.neusoft.health.common.utils.PhoneUtil;
 import com.neusoft.health.common.exception.BusinessException;
 import com.neusoft.health.common.result.ResultCode;
 import com.neusoft.health.modules.member.dto.RefundApplyDTO;
@@ -247,9 +249,18 @@ public class RefundServiceImpl extends ServiceImpl<RefundRequestMapper, RefundRe
 
         User user = userMapper.selectById(refund.getUserId());
         if (user != null) {
-            vo.setUserPhone(user.getPhoneEncrypted());
+            vo.setUserName(user.getNickname());
+            vo.setUserPhone(maskPhone(user.getPhoneEncrypted()));
         }
 
         return vo;
+    }
+
+    private String maskPhone(String phoneEncrypted) {
+        try {
+            return PhoneUtil.mask(AesUtil.decrypt(phoneEncrypted));
+        } catch (Exception e) {
+            return phoneEncrypted;
+        }
     }
 }

@@ -38,7 +38,7 @@ public class OperationLogController {
      * @return 日志列表
      */
     @Operation(summary = "获取操作日志列表", description = "分页查询操作日志，可按用户ID和操作类型筛选")
-    @GetMapping
+    @GetMapping("/list")
     public R<List<OperationLogVO>> listLogs(
             @Parameter(description = "用户ID，可选") @RequestParam(required = false) Long userId,
             @Parameter(description = "操作类型，可选") @RequestParam(required = false) String action,

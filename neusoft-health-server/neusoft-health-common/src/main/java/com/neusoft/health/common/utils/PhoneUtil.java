@@ -40,9 +40,9 @@ public final class PhoneUtil {
      * @return 脱敏后的手机号
      */
     public static String mask(String phone) {
-        if (phone == null || phone.length() != 11) {
+        if (phone == null || phone.length() < 7) {
             return phone;
         }
-        return phone.substring(0, 3) + "****" + phone.substring(7);
+        return phone.substring(0, 3) + "******" + phone.substring(phone.length() - 2);
     }
 }

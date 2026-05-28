@@ -11,19 +11,23 @@ public class TtsProperties {
 
     private String provider;
 
-    private String appId;
-
     private String apiKey;
 
-    private String apiSecret;
+    private String appId;
 
-    private String apiUrl;
+    private String accessToken;
 
-    private String voice;
+    private String secretKey;
+
+    private String resourceId;
+
+    private String speaker;
 
     private Integer speed;
 
     private Integer volume;
 
-    private Integer pitch;
+    private String format = "mp3";
+
+    private Integer sampleRate = 24000;
 }

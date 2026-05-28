@@ -10,6 +10,7 @@ public class RefundRequestVO {
     private Long orderId;
     private String orderNo;
     private Long userId;
+    private String userName;
     private String userPhone;
     private String reason;
     private BigDecimal refundAmount;

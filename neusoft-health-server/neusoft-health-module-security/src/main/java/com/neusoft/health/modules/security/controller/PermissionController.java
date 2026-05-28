@@ -28,7 +28,7 @@ public class PermissionController {
     private final PermissionService permissionService;
 
     @Operation(summary = "获取权限列表", description = "获取系统所有权限资源的扁平列表，包含权限编码、类型、父级ID等信息")
-    @GetMapping
+    @GetMapping("/list")
     public R<List<PermissionVO>> listAll() {
         List<Permission> list = permissionService.list();
         List<PermissionVO> voList = list.stream().map(this::toVO).collect(Collectors.toList());

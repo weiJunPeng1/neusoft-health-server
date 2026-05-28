@@ -2,6 +2,7 @@ package com.neusoft.health.modules.system.vo;
 
 import lombok.Data;
 import java.time.LocalDateTime;
+import java.util.List;
 
 /**
  * 用户VO
@@ -69,4 +70,14 @@ public class UserVO {
      * 创建时间
      */
     private LocalDateTime createdTime;
+
+    /**
+     * 是否已设置密码：true=已设置，false=未设置
+     */
+    private Boolean hasPassword;
+
+    /**
+     * 角色编码列表
+     */
+    private List<String> roles;
 }

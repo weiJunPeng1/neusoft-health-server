@@ -10,6 +10,8 @@ public class FaqVO {
 
     private Long categoryId;
 
+    private String categoryName;
+
     private String question;
 
     private String presetAnswer;

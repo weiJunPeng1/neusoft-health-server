@@ -77,6 +77,7 @@ public class SecurityConfig {
                                 "/doc.html"
                         ).permitAll()
                         .requestMatchers("/api/v1/faq/**").permitAll()
+                        .requestMatchers("/api/v1/tts/**").permitAll()
                         .requestMatchers("/api/v1/health-search/**").permitAll()
                         .requestMatchers("/api/v1/sensitive-word/**").permitAll()
                         .requestMatchers("/api/v1/payment/callback/**").permitAll()

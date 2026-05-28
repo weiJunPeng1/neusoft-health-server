@@ -33,7 +33,7 @@ public class RoleController {
     private final RolePermissionService rolePermissionService;
 
     @Operation(summary = "获取角色列表", description = "获取系统所有角色列表，包含角色编码、名称和状态")
-    @GetMapping
+    @GetMapping("/list")
     public R<List<RoleVO>> listAll() {
         List<Role> list = roleService.listAll();
         List<RoleVO> voList = list.stream().map(this::toVO).collect(Collectors.toList());

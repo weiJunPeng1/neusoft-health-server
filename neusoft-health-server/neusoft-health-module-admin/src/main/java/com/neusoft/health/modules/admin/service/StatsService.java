@@ -1,22 +1,23 @@
 package com.neusoft.health.modules.admin.service;
 
+import java.util.List;
 import java.util.Map;
 
-/**
- * 统计数据服务
- * <p>
- * 提供仪表盘统计数据的获取功能
- * </p>
- *
- * @author Neusoft Health Consulting
- * @since 1.0.0
- */
 public interface StatsService {
 
-    /**
-     * 获取仪表盘统计数据
-     *
-     * @return 统计数据Map
-     */
     Map<String, Object> getDashboardStats();
+
+    List<Map<String, Object>> getCategoryStats();
+
+    List<Map<String, Object>> getUserTrend(int days);
+
+    List<Map<String, Object>> getConsultTrend(int days);
+
+    Map<String, Object> getMemberStats();
+
+    List<Map<String, Object>> getHotConsults(int limit);
+
+    List<Map<String, Object>> getRecentConsults(int limit);
+
+    Map<String, Object> getAiPerformanceStats();
 }

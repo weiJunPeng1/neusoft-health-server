@@ -3,7 +3,9 @@ package com.neusoft.health.modules.consultation.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.neusoft.health.framework.ai.AiClient;
+import com.neusoft.health.framework.ai.EmbeddingClassifier;
 import com.neusoft.health.modules.consultation.dto.MessageReviewDTO;
+import com.neusoft.health.common.enums.ConsultCategoryEnum;
 import com.neusoft.health.common.enums.MessageRoleEnum;
 import com.neusoft.health.common.enums.ReviewStatusEnum;
 import com.neusoft.health.modules.consultation.dto.MessageSendDTO;
@@ -42,7 +44,9 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     private final SensitiveWordService sensitiveWordService;
     private final EmergencyService emergencyService;
     private final AiClient aiClient;
+    private final EmbeddingClassifier embeddingClassifier;
     private final MemberService memberService;
+    private final com.neusoft.health.common.mapper.UserMapper userMapper;
 
     @Override
     public List<MessageVO> listMessages(Long userId, Long sessionId) {
@@ -102,8 +106,6 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
 
         long startTime = System.currentTimeMillis();
 
-        String filteredContent = sensitiveWordService.filterSensitiveWords(content);
-
         Message userMessage = new Message();
         userMessage.setSessionId(session.getId());
         userMessage.setUserId(userId);
@@ -114,23 +116,38 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         boolean hasSensitive = sensitiveWordService.containsSensitiveWord(content);
         if (hasSensitive) {
             userMessage.setIsViolation(1);
-            userMessage.setViolationReason("内容包含敏感词");
-            log.warn("Message contains sensitive words: userId={}", userId);
+            userMessage.setViolationReason("内容包含敏感词，等待人工审核");
+            userMessage.setReviewStatus(ReviewStatusEnum.PENDING.getCode());
+            log.warn("Message contains sensitive words, intercepted: userId={}", userId);
+        } else {
+            userMessage.setReviewStatus(ReviewStatusEnum.APPROVED.getCode());
         }
 
-        String emergencyKeyword = sensitiveWordService.getEmergencyKeyword(content);
-        if (emergencyKeyword != null) {
+        boolean isEmergency = sensitiveWordService.isEmergencyContent(content);
+        String emergencyKeyword = null;
+        if (isEmergency) {
+            emergencyKeyword = sensitiveWordService.getEmergencyKeyword(content);
             userMessage.setIsEmergency(1);
             userMessage.setEmergencyKeyword(emergencyKeyword);
-            log.info("Emergency keyword detected: userId={}, keyword={}", userId, emergencyKeyword);
+            log.info("Emergency content detected: userId={}, keyword={}", userId, emergencyKeyword);
         }
 
-        userMessage.setReviewStatus(ReviewStatusEnum.PENDING.getCode());
         save(userMessage);
         log.debug("User message saved: messageId={}", userMessage.getId());
 
         if (userMessage.getIsEmergency() != null && userMessage.getIsEmergency() == 1) {
             emergencyService.createEmergencyLog(userId, userMessage.getId(), emergencyKeyword);
+        }
+
+        if (hasSensitive) {
+            session.setMessageCount(session.getMessageCount() + 1);
+            session.setLastMessageAt(LocalDateTime.now());
+            sessionService.updateById(session);
+
+            MessageVO waitVo = new MessageVO();
+            waitVo.setIsEmergency(0);
+            waitVo.setDisclaimer("您的消息包含敏感内容，正在等待人工审核，审核通过后将为您生成回复，请稍后查看。");
+            return waitVo;
         }
 
         String systemPrompt = "你是一个专业的健康咨询助手，由东软健康提供。请基于医学常识，为用户提供专业、准确、易懂的健康咨询建议。" +
@@ -178,16 +195,17 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         aiMessage.setContent(aiReply);
         aiMessage.setContentType(1);
         aiMessage.setApiCallDuration((int) duration);
-        if (hasSensitive || emergencyKeyword != null) {
-            aiMessage.setReviewStatus(ReviewStatusEnum.PENDING.getCode());
-        } else {
-            aiMessage.setReviewStatus(ReviewStatusEnum.APPROVED.getCode());
-        }
+        aiMessage.setReviewStatus(ReviewStatusEnum.APPROVED.getCode());
         save(aiMessage);
         log.debug("AI message saved: messageId={}", aiMessage.getId());
 
         session.setMessageCount(session.getMessageCount() + 2);
         session.setLastMessageAt(LocalDateTime.now());
+
+        if (isNewSession && (session.getCategory() == null || session.getCategory().isBlank())) {
+            classifySessionAsync(session, content);
+        }
+
         sessionService.updateById(session);
 
         MessageVO vo = toMessageVO(aiMessage);
@@ -220,20 +238,82 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
     @Override
     public void reviewMessage(MessageReviewDTO dto, Long reviewerId) {
         Message message = getById(dto.getMessageId());
-        if (message != null) {
-            message.setReviewStatus(dto.getReviewStatus());
-            message.setReviewedBy(reviewerId);
-            message.setReviewedAt(LocalDateTime.now());
-            if (dto.getViolationReason() != null) {
-                message.setViolationReason(dto.getViolationReason());
+        if (message == null) {
+            return;
+        }
+
+        boolean isApproved = Objects.equals(ReviewStatusEnum.APPROVED.getCode(), dto.getReviewStatus());
+
+        message.setReviewStatus(dto.getReviewStatus());
+        message.setReviewedBy(reviewerId);
+        message.setReviewedAt(LocalDateTime.now());
+        if (dto.getViolationReason() != null) {
+            message.setViolationReason(dto.getViolationReason());
+        }
+        if (dto.getModifiedContent() != null) {
+            message.setModifiedContent(dto.getModifiedContent());
+        }
+        if (Objects.equals(ReviewStatusEnum.VIOLATION.getCode(), dto.getReviewStatus())) {
+            message.setIsViolation(1);
+        }
+        updateById(message);
+
+        if (isApproved && message.getRole().equals(MessageRoleEnum.USER.getCode())) {
+            generateReplyAfterApproval(message);
+        }
+    }
+
+    private void generateReplyAfterApproval(Message userMessage) {
+        try {
+            String systemPrompt = "你是一个专业的健康咨询助手，由东软健康提供。请基于医学常识，为用户提供专业、准确、易懂的健康咨询建议。" +
+                    "请注意：你的回答仅供参考，不能替代专业医疗诊断。如有严重症状，请及时就医。" +
+                    "回答应当简洁明了，控制在200字以内。";
+
+            List<Message> historyList = list(
+                    new LambdaQueryWrapper<Message>()
+                            .eq(Message::getSessionId, userMessage.getSessionId())
+                            .ne(Message::getId, userMessage.getId())
+                            .orderByAsc(Message::getCreatedTime)
+            );
+
+            List<Map<String, String>> history = historyList.stream()
+                    .map(msg -> {
+                        Map<String, String> map = new HashMap<>();
+                        map.put("role", msg.getRole());
+                        map.put("content", msg.getContent());
+                        return map;
+                    })
+                    .collect(Collectors.toList());
+
+            long startTime = System.currentTimeMillis();
+            String aiReply = aiClient.chat(systemPrompt, userMessage.getContent(), history);
+            long duration = System.currentTimeMillis() - startTime;
+
+            if (aiReply == null || aiReply.isEmpty()) {
+                log.error("AI reply generation failed after approval: messageId={}", userMessage.getId());
+                return;
             }
-            if (dto.getModifiedContent() != null) {
-                message.setModifiedContent(dto.getModifiedContent());
+
+            Message aiMessage = new Message();
+            aiMessage.setSessionId(userMessage.getSessionId());
+            aiMessage.setUserId(userMessage.getUserId());
+            aiMessage.setRole(MessageRoleEnum.ASSISTANT.getCode());
+            aiMessage.setContent(aiReply);
+            aiMessage.setContentType(1);
+            aiMessage.setApiCallDuration((int) duration);
+            aiMessage.setReviewStatus(ReviewStatusEnum.APPROVED.getCode());
+            save(aiMessage);
+
+            Session session = sessionService.getById(userMessage.getSessionId());
+            if (session != null) {
+                session.setMessageCount(session.getMessageCount() + 1);
+                session.setLastMessageAt(LocalDateTime.now());
+                sessionService.updateById(session);
             }
-            if (Objects.equals(ReviewStatusEnum.VIOLATION.getCode(), dto.getReviewStatus())) {
-                message.setIsViolation(1);
-            }
-            updateById(message);
+
+            log.info("AI reply generated after approval: messageId={}, duration={}ms", userMessage.getId(), duration);
+        } catch (Exception e) {
+            log.error("Failed to generate AI reply after approval: messageId={}", userMessage.getId(), e);
         }
     }
 
@@ -242,9 +322,17 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         List<Message> messages = list(new LambdaQueryWrapper<Message>()
                 .eq(Message::getReviewStatus, ReviewStatusEnum.PENDING.getCode())
                 .orderByAsc(Message::getCreatedTime));
+        List<Long> userIds = messages.stream().map(Message::getUserId).distinct().collect(Collectors.toList());
+        Map<Long, com.neusoft.health.common.entity.User> userMap = userIds.isEmpty() ? Map.of() :
+                userMapper.selectBatchIds(userIds).stream()
+                        .collect(Collectors.toMap(com.neusoft.health.common.entity.User::getId, u -> u));
         return messages.stream().map(msg -> {
             MessageDetailVO vo = new MessageDetailVO();
             BeanUtils.copyProperties(msg, vo);
+            com.neusoft.health.common.entity.User user = userMap.get(msg.getUserId());
+            if (user != null) {
+                vo.setNickname(user.getNickname());
+            }
             return vo;
         }).collect(Collectors.toList());
     }
@@ -254,22 +342,28 @@ public class MessageServiceImpl extends ServiceImpl<MessageMapper, Message> impl
         BeanUtils.copyProperties(message, vo);
         return vo;
     }
-
-    private MessageVO toVO(Message message) {
-        return toMessageVO(message);
-    }
     
     private void checkConsultQuota(Long userId) {
         MemberStatusVO status = memberService.getMemberStatus(userId);
         String levelCode = status.getLevelCode();
-        
+
         if (levelCode == null || "L0".equals(levelCode)) {
             Integer dailyQuota = status.getDailyQuota() != null ? status.getDailyQuota() : 3;
             Integer todayUsed = status.getTodayUsed() != null ? status.getTodayUsed() : 0;
-            
+
             if (todayUsed >= dailyQuota) {
                 throw new BusinessException(50001, "今日免费咨询额度已用完，请开通会员享受更多咨询次数");
             }
+        }
+    }
+
+    private void classifySessionAsync(Session session, String userContent) {
+        try {
+            ConsultCategoryEnum category = embeddingClassifier.classify(userContent);
+            session.setCategory(category.getLabel());
+            log.info("Session classified by embedding: sessionId={}, category={}", session.getId(), category.getLabel());
+        } catch (Exception e) {
+            log.warn("Session classification failed, sessionId={}: {}", session.getId(), e.getMessage());
         }
     }
 }

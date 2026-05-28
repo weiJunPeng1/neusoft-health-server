@@ -5,7 +5,9 @@ import com.neusoft.health.common.mapper.UserMapper;
 import com.neusoft.health.common.result.R;
 import com.neusoft.health.modules.member.dto.AdminGrantDTO;
 import com.neusoft.health.modules.member.entity.UserMembership;
+import com.neusoft.health.modules.member.mapper.UserMembershipMapper;
 import com.neusoft.health.modules.member.service.MemberService;
+import com.neusoft.health.modules.member.vo.MemberUserVO;
 import com.neusoft.health.common.entity.User;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.*;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Tag(name = "会员管理", description = "管理员手动开通/撤销会员")
 @RestController
@@ -27,6 +30,7 @@ public class AdminMemberController {
 
     private final MemberService memberService;
     private final UserMapper userMapper;
+    private final UserMembershipMapper userMembershipMapper;
 
     @Operation(summary = "手动开通会员（R002）")
     @PostMapping("/grant")
@@ -46,13 +50,33 @@ public class AdminMemberController {
 
     @Operation(summary = "获取会员用户列表")
     @GetMapping("/users")
-    public R<List<User>> getMemberUsers() {
-        List<User> users = userMapper.selectList(
-                new LambdaQueryWrapper<User>()
-                        .ne(User::getMemberLevel, "L0")
-                        .orderByDesc(User::getUpdatedTime)
+    public R<List<MemberUserVO>> getMemberUsers() {
+        List<UserMembership> memberships = userMembershipMapper.selectList(
+                new LambdaQueryWrapper<UserMembership>()
+                        .eq(UserMembership::getStatus, 1)
+                        .orderByDesc(UserMembership::getStartTime)
         );
-        return R.ok(users);
+        List<Long> userIds = memberships.stream()
+                .map(UserMembership::getUserId)
+                .distinct()
+                .collect(Collectors.toList());
+        Map<Long, User> userMap = userIds.isEmpty() ? Map.of() :
+                userMapper.selectBatchIds(userIds).stream()
+                        .collect(Collectors.toMap(User::getId, u -> u));
+        List<MemberUserVO> voList = memberships.stream().map(m -> {
+            MemberUserVO vo = new MemberUserVO();
+            vo.setId(m.getUserId());
+            vo.setMemberLevel(m.getLevelCode());
+            vo.setStartTime(m.getStartTime());
+            vo.setExpireTime(m.getExpireTime());
+            vo.setStatus(m.getStatus());
+            User user = userMap.get(m.getUserId());
+            if (user != null) {
+                vo.setNickname(user.getNickname());
+            }
+            return vo;
+        }).collect(Collectors.toList());
+        return R.ok(voList);
     }
 
     @Operation(summary = "获取会员统计数据")

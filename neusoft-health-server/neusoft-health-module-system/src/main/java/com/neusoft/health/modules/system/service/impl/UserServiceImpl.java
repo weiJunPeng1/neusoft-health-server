@@ -18,10 +18,17 @@ import com.neusoft.health.common.mapper.UserMapper;
 import com.neusoft.health.modules.system.service.UserService;
 import com.neusoft.health.modules.system.vo.UserDetailVO;
 import com.neusoft.health.modules.system.vo.UserVO;
+import com.neusoft.health.modules.security.entity.Role;
+import com.neusoft.health.modules.security.entity.UserRole;
+import com.neusoft.health.modules.security.mapper.RoleMapper;
+import com.neusoft.health.modules.security.mapper.UserRoleMapper;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.StringUtils;
 
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -35,8 +42,17 @@ import java.util.stream.Collectors;
  * @author Neusoft Health Consulting
  * @since 1.0.0
  */
+@Slf4j
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
+
+    private final UserRoleMapper userRoleMapper;
+    private final RoleMapper roleMapper;
+
+    public UserServiceImpl(UserRoleMapper userRoleMapper, RoleMapper roleMapper) {
+        this.userRoleMapper = userRoleMapper;
+        this.roleMapper = roleMapper;
+    }
 
     @Override
     public UserVO getProfile(Long userId) {
@@ -55,7 +71,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         }
         UserDetailVO vo = new UserDetailVO();
         vo.setId(user.getId());
-        vo.setPhone(PhoneUtil.mask(AesUtil.decrypt(user.getPhoneEncrypted())));
+        vo.setPhone(safeDecryptPhone(user.getPhoneEncrypted()));
         vo.setNickname(user.getNickname());
         vo.setAvatarUrl(user.getAvatarUrl());
         vo.setGender(user.getGender());
@@ -116,7 +132,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     private UserVO toVO(User user) {
         UserVO vo = new UserVO();
         vo.setId(user.getId());
-        vo.setPhone(PhoneUtil.mask(AesUtil.decrypt(user.getPhoneEncrypted())));
+        vo.setPhone(safeDecryptPhone(user.getPhoneEncrypted()));
         vo.setNickname(user.getNickname());
         vo.setAvatarUrl(user.getAvatarUrl());
         vo.setGender(user.getGender());
@@ -126,7 +142,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         vo.setLastLoginTime(user.getLastLoginTime());
         vo.setStatus(user.getStatus());
         vo.setCreatedTime(user.getCreatedTime());
+        vo.setHasPassword(user.getPasswordHash() != null && !user.getPasswordHash().isEmpty());
+        vo.setRoles(getUserRoleCodes(user.getId()));
         return vo;
+    }
+
+    private List<String> getUserRoleCodes(Long userId) {
+        List<UserRole> userRoles = userRoleMapper.selectList(
+                new LambdaQueryWrapper<UserRole>().eq(UserRole::getUserId, userId));
+        if (userRoles.isEmpty()) {
+            return Collections.emptyList();
+        }
+        List<Long> roleIds = userRoles.stream().map(UserRole::getRoleId).collect(Collectors.toList());
+        List<Role> roles = roleMapper.selectBatchIds(roleIds);
+        return roles.stream().map(Role::getRoleCode).collect(Collectors.toList());
+    }
+
+    private String safeDecryptPhone(String phoneEncrypted) {
+        try {
+            return PhoneUtil.mask(AesUtil.decrypt(phoneEncrypted));
+        } catch (Exception e) {
+            log.debug("手机号解密失败，使用原始值: {}", e.getMessage());
+            if (phoneEncrypted != null && phoneEncrypted.length() == 11) {
+                return PhoneUtil.mask(phoneEncrypted);
+            }
+            return phoneEncrypted;
+        }
     }
 }
 

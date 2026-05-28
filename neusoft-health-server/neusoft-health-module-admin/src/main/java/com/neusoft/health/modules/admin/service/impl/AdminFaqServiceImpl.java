@@ -11,6 +11,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Map;
 import java.util.stream.Collectors;
 
 @Service
@@ -33,9 +34,13 @@ public class AdminFaqServiceImpl implements AdminFaqService {
                     new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<Faq>()
                             .orderByAsc(Faq::getSortOrder));
         }
+        List<FaqCategory> categories = faqCategoryMapper.selectList(null);
+        Map<Long, String> categoryNameMap = categories.stream()
+                .collect(Collectors.toMap(FaqCategory::getId, FaqCategory::getName));
         return faqs.stream().map(faq -> {
             FaqVO vo = new FaqVO();
             BeanUtils.copyProperties(faq, vo);
+            vo.setCategoryName(categoryNameMap.get(faq.getCategoryId()));
             return vo;
         }).collect(Collectors.toList());
     }

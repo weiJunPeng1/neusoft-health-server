@@ -6,7 +6,10 @@ import java.time.LocalDateTime;
 
 @Data
 public class PaymentOrderVO {
+    private Long id;
     private String orderNo;
+    private Long userId;
+    private String nickname;
     private Long planId;
     private String planName;
     private BigDecimal amount;

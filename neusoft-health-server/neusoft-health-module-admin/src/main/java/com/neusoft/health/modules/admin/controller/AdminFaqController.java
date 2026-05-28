@@ -1,6 +1,7 @@
 package com.neusoft.health.modules.admin.controller;
 
 import com.neusoft.health.common.result.R;
+import com.neusoft.health.common.annotation.AdminOperation;
 import com.neusoft.health.modules.admin.service.AdminFaqService;
 import com.neusoft.health.modules.consultation.entity.Faq;
 import com.neusoft.health.modules.consultation.entity.FaqCategory;
@@ -29,18 +30,21 @@ public class AdminFaqController {
     }
 
     @Operation(summary = "新增FAQ", description = "创建一条新的FAQ条目")
-    @PostMapping
+    @AdminOperation(module = "FAQ管理", operation = "新增FAQ", targetType = "Faq", targetIdParam = "#faq.id")
+    @PostMapping("/create")
     public R<Faq> createFaq(@RequestBody Faq faq) {
         return R.ok(adminFaqService.createFaq(faq));
     }
 
     @Operation(summary = "编辑FAQ", description = "修改已有的FAQ条目内容")
+    @AdminOperation(module = "FAQ管理", operation = "编辑FAQ", targetType = "Faq", targetIdParam = "#faq.id")
     @PutMapping
     public R<Faq> updateFaq(@RequestBody Faq faq) {
         return R.ok(adminFaqService.updateFaq(faq));
     }
 
     @Operation(summary = "删除FAQ", description = "根据ID删除指定的FAQ条目")
+    @AdminOperation(module = "FAQ管理", operation = "删除FAQ", targetType = "Faq", targetIdParam = "#id")
     @DeleteMapping("/{id}")
     public R<Void> deleteFaq(
             @Parameter(description = "FAQ条目ID") @PathVariable Long id) {
@@ -55,18 +59,21 @@ public class AdminFaqController {
     }
 
     @Operation(summary = "新增分类", description = "创建新的FAQ分类")
+    @AdminOperation(module = "FAQ管理", operation = "新增分类", targetType = "FaqCategory", targetIdParam = "#category.id")
     @PostMapping("/category")
     public R<FaqCategory> createCategory(@RequestBody FaqCategory category) {
         return R.ok(adminFaqService.createCategory(category));
     }
 
     @Operation(summary = "编辑分类", description = "修改已有的FAQ分类信息")
+    @AdminOperation(module = "FAQ管理", operation = "编辑分类", targetType = "FaqCategory", targetIdParam = "#category.id")
     @PutMapping("/category")
     public R<FaqCategory> updateCategory(@RequestBody FaqCategory category) {
         return R.ok(adminFaqService.updateCategory(category));
     }
 
     @Operation(summary = "删除分类", description = "根据ID删除指定的FAQ分类")
+    @AdminOperation(module = "FAQ管理", operation = "删除分类", targetType = "FaqCategory", targetIdParam = "#id")
     @DeleteMapping("/category/{id}")
     public R<Void> deleteCategory(
             @Parameter(description = "分类ID") @PathVariable Long id) {

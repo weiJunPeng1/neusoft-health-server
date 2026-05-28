@@ -17,6 +17,11 @@ import lombok.Data;
 public class UserPasswordDTO {
 
     /**
+     * 旧密码（用户已有密码时必填）
+     */
+    private String oldPassword;
+
+    /**
      * 新密码
      */
     @NotBlank(message = "新密码不能为空")

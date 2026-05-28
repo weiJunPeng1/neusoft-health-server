@@ -12,6 +12,8 @@ public class MessageDetailVO {
 
     private Long userId;
 
+    private String nickname;
+
     private String role;
 
     private String content;

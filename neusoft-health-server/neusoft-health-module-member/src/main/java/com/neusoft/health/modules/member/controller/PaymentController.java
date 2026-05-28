@@ -213,14 +213,6 @@ public class PaymentController {
         }
     }
 
-    @Operation(summary = "模拟支付成功（用于测试）")
-    @PostMapping("/simulate-payment")
-    public R<Void> simulatePayment(@RequestBody Map<String, String> params) {
-        String orderNo = params.get("orderNo");
-        paymentService.simulatePayment(orderNo);
-        return R.ok();
-    }
-
     @Operation(summary = "支付宝支付成功前端回调（无需登录）")
     @GetMapping("/return/alipay")
     public String alipayReturn(HttpServletRequest request) {

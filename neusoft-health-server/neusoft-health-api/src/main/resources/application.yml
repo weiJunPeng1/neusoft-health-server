@@ -65,17 +65,21 @@ ai:
   model: ${AI_MODEL:${DEEPSEEK_MODEL:deepseek-chat}}
   max-tokens: ${AI_MAX_TOKENS:2048}
   temperature: ${AI_TEMPERATURE:0.7}
+  chat-endpoint: ${AI_CHAT_ENDPOINT:}
+  responses-endpoint: ${AI_RESPONSES_ENDPOINT:}
 
 tts:
-  provider: ${TTS_PROVIDER:iflytek}
-  app-id: ${IFLYTEK_APP_ID:6a0ac414}
-  api-key: ${IFLYTEK_API_KEY:bdf5e5fc1f08bfb23fa7c53a06a1e1dc}
-  api-secret: ${IFLYTEK_API_SECRET:NTg0YTAwYjkwYjE4NDk4OWEzM2NmZjA1}
-  api-url: ${IFLYTEK_TTS_URL:wss://cbm01.cn-huabei-1.xf-yun.com/v1/private/mcd9m97e6}
-  voice: ${IFLYTEK_TTS_VOICE:x6_lingxiaoxuan_pro}
-  speed: ${IFLYTEK_TTS_SPEED:50}
-  volume: ${IFLYTEK_TTS_VOLUME:50}
-  pitch: ${IFLYTEK_TTS_PITCH:50}
+  provider: doubao
+  api-key: ${TTS_API_KEY:}
+  app-id: ${TTS_APP_ID:7780058388}
+  access-token: ${TTS_ACCESS_TOKEN:PRSWYid17xCY1Y34GJOaEAjvQGztYQrs}
+  secret-key: ${TTS_SECRET_KEY:pn1Cp4uHmMKv4Ftk4jXf009ZkFXJD6ZN}
+  resource-id: ${TTS_RESOURCE_ID:seed-tts-2.0}
+  speaker: ${TTS_SPEAKER:zh_female_vv_mars_bigtts}
+  speed: ${TTS_SPEED:0}
+  volume: ${TTS_VOLUME:0}
+  format: ${TTS_FORMAT:mp3}
+  sample-rate: ${TTS_SAMPLE_RATE:24000}
 
 alipay:
   app-id: ${ALIPAY_APP_ID:2088842396964540}

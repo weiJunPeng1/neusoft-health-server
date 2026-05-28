@@ -1,6 +1,7 @@
 package com.neusoft.health.modules.admin.controller;
 
 import com.neusoft.health.common.result.R;
+import com.neusoft.health.common.annotation.AdminOperation;
 import com.neusoft.health.modules.admin.dto.SystemConfigUpdateDTO;
 import com.neusoft.health.modules.admin.service.SystemConfigService;
 import com.neusoft.health.modules.admin.vo.SystemConfigVO;
@@ -60,6 +61,7 @@ public class SystemConfigController {
      * @return 更新后的配置
      */
     @Operation(summary = "更新配置", description = "修改系统配置项的值，支持批量更新")
+    @AdminOperation(module = "系统配置", operation = "更新配置", targetType = "SystemConfig")
     @PutMapping
     public R<SystemConfigVO> updateConfig(@RequestBody SystemConfigUpdateDTO dto) {
         return R.ok(systemConfigService.updateConfig(dto));

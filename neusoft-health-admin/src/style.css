@@ -1,0 +1,30 @@
+:root {
+  font-family: 'Microsoft YaHei', 'PingFang SC', sans-serif;
+  line-height: 1.5;
+  font-weight: 400;
+  color: #333;
+  background-color: #f0f2f5;
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a {
+  text-decoration: none;
+  color: inherit;
+}
+
+.el-menu {
+  border-right: none !important;
+}
+
+.el-menu--collapse .el-menu-item span,
+.el-menu--collapse .el-sub-menu__title span {
+  display: none;
+}
+
+.el-menu--collapse .el-menu-item .el-sub-menu__icon-arrow,
+.el-menu--collapse .el-sub-menu__title .el-sub-menu__icon-arrow {
+  display: none;
+}

@@ -2,6 +2,7 @@ package com.neusoft.health.modules.admin.controller;
 
 import com.neusoft.health.common.result.R;
 import com.neusoft.health.framework.util.SecurityUtil;
+import com.neusoft.health.common.annotation.AdminOperation;
 import com.neusoft.health.modules.admin.service.ContentReviewService;
 import com.neusoft.health.modules.consultation.dto.MessageReviewDTO;
 import com.neusoft.health.modules.consultation.vo.MessageDetailVO;
@@ -31,6 +32,7 @@ public class ContentReviewController {
     }
 
     @Operation(summary = "审核消息", description = "对指定的咨询消息进行审核通过或驳回操作")
+    @AdminOperation(module = "内容审核", operation = "审核消息", targetType = "Message", targetIdParam = "#dto.messageId")
     @PostMapping("/message")
     public R<Void> reviewMessage(@Valid @RequestBody MessageReviewDTO dto) {
         Long reviewerId = SecurityUtil.getCurrentUserId();
